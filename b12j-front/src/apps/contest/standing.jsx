@@ -1,8 +1,9 @@
 import React, {useContext, useEffect, useState} from 'react';
 import http from "../../common/httpService";
 import {SuperContext} from "../../app";
+import {apiEndpoint} from "../../configuration";
 
-const url = process.env.REACT_APP_API_URL
+const url = apiEndpoint
 
 const Standing = ({match}) => {
     const {contestActs, userActs} = useContext(SuperContext);
