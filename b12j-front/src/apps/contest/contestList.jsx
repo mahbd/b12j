@@ -28,8 +28,8 @@ const ContestList = () => {
                 <tbody>
                 {contestList && contestList.map((contest) => <tr key={contest.id}>
                     <td><Link to={`/contests/${contest.id}`}>{contest.title}</Link></td>
-                    <td>{contest.hosts.map((userId) => <p key={userId}>{userActs.firstName(userId)}</p> )}</td>
-                    <td>{contest.testers.map((userId) => <p key={userId}>{userActs.firstName(userId)}</p> )}</td>
+                    <td>{contest.hosts.map((userId) => <p className="user" key={userId}>{userActs.firstName(userId)}</p> )}</td>
+                    <td>{contest.testers.map((userId) => <p className="user" key={userId}>{userActs.firstName(userId)}</p> )}</td>
                     <td>{extractDate(contest.start_time)}</td>
                     <td>{extractDate(contest.end_time)}</td>
                 </tr>)

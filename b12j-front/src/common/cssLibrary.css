@@ -3,6 +3,11 @@
     color: black;
 }
 
+.user {
+    color: mediumseagreen;
+    font-weight: bolder;
+}
+
 .AliceBlue {
     color: AliceBlue;
 }

@@ -29,7 +29,7 @@ const Problem = ({match, history}) => {
                 <Link to={`/problems/edit/${problem.id}`}><button className="btn-lg btn-success">Edit</button></Link>}
             <div className="bgDarkBlue">
                 <h1>{problem.title}</h1>
-                <h3>By {userActs.fullName(problem.by)}</h3>
+                <h3>By <span className="user">{userActs.fullName(problem.by)}</span></h3>
             </div>
             <div className="bgAliceBlue">
                 <div className="alert alert-info">{problem.notice}</div>

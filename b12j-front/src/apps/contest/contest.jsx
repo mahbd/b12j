@@ -4,10 +4,11 @@ import ProblemList from "../problem/problemList";
 import Countdown from "react-countdown";
 import TutorialList from "../tutorial/tutorialList";
 import {Link} from "react-router-dom";
+import {FormattedHtml} from "../../common/objectViewFuncs";
 
 const Contest = ({match}) => {
     const {contestId} = match.params;
-    const {contestActs} = useContext(SuperContext);
+    const {contestActs, userActs} = useContext(SuperContext);
     const [contest, setContest] = useState(contestActs.getById(contestId));
     const [reload, setReload] = useState(false);
 
@@ -26,24 +27,42 @@ const Contest = ({match}) => {
 
     return (
         <div className="container">
-            {contestStart > Date.now() && <div className="container">
-                <p className="display-4">{contest.title}</p>
-                <Countdown date={contest.start_time} className="display-4" onComplete={forceReload}/>
-            </div>}
-
             {contest && <div>
-                <h1 className="text-success">{contest.title}</h1>
-                <Link to={`/contests/standing/${contestId}`}><button className="btn-lg btn-outline-success">Standing</button></Link>
+                <p className="text-success display-4">{contest.title}</p>
+                <table className="table table-bordered table-striped">
+                    <thead>
+                    <th>Contest Writers</th>
+                    <th>Contest Testers</th>
+                    </thead>
+                    <tbody>
+                    <td>{contest.hosts.map((userId) => <p className="user" key={userId}>{userActs.firstName(userId)}</p>)}</td>
+                    <td>{contest.testers.map((userId) => <p className="user" key={userId}>{userActs.firstName(userId)}</p>)}</td>
+                    </tbody>
+                </table>
+                {contest.text && <div>
+                    <h2>About contest</h2>
+                    <div className="bgAliceBlue">
+                        <FormattedHtml text={contest.text}/>
+                    </div>
+                    <br/>
+                </div>}
+                <Link to={`/contests/standing/${contestId}`}>
+                    <button className="btn-lg btn-outline-success">Standing</button>
+                </Link>
             </div>}
-
-            {contestEnd <= Date.now() && <div>
-                <h2>Tutorials</h2>
-                <TutorialList match={match}/>
+            {contestStart > Date.now() && <div className="container">
+                <Countdown date={contest.start_time} className="display-4" onComplete={forceReload}/>
             </div>}
 
             {contestStart <= Date.now() && <div>
                 <h2>Problems</h2>
                 <ProblemList match={match}/>
+            </div>}
+
+
+            {contestEnd <= Date.now() && <div>
+                <h2>Tutorials</h2>
+                <TutorialList match={match}/>
             </div>}
         </div>
     );
