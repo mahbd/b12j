@@ -14,7 +14,8 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('judge/', include('judge.urls')),
     path('ws/', include('ws.urls')),
-    re_path('$', index),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += re_path('$', index),

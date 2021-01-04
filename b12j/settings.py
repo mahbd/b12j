@@ -5,6 +5,7 @@ from corsheaders.defaults import default_headers
 from .settings_helper import link_to_json_file
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_DIR = os.path.dirname(__file__)
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', True)
 
@@ -108,9 +109,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
+MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'b12j-front', 'build', 'static'), )
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static/')
 
 AUTH_USER_MODEL = 'user.User'
 AUTH_USER_GROUP = 'user.UserGroup'
