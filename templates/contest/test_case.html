@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}TestCase{% endblock title %}
+{% block content %}
+    <div class="container">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        <form action="{% url 'judge:add_tc' problem.id %}" method="post">
+            {% csrf_token %}
+            <h1>Problem: {{ problem.title }}</h1>
+            <h4>Correct Code</h4>
+            <pre>{{ problem.corCode }}</pre>
+            <label for="inputs">Input</label>
+            <textarea class="form-control" name="inputs" id="inputs" rows="15"
+                      placeholder="Enter input here"></textarea>
+            <button class="btn-lg btn-success" type="submit">Submit</button>
+        </form>
+    </div>
+    <br><br><br>
+{% endblock content %}

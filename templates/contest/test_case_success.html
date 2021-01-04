@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Success TestCase{% endblock title %}
+{% block content %}
+    <div class="container">
+        <h1>Problem: {{ test_case.problem.title }}</h1>
+        <a class="btn-lg btn-outline-success" href="{% url 'judge:add_tc' test_case.problem_id %}">Add another testcase</a>
+        <h4>Correct Code</h4>
+        <pre>{{ test_case.problem.corCode }}</pre>
+        <table class="table table-bordered">
+            <tr>
+                <th>Input</th>
+                <th>Output</th>
+            </tr>
+            <tr>
+                <td><pre>{{ test_case.inputs }}</pre></td>
+                <td><pre>{{ test_case.output }}</pre></td>
+            </tr>
+        </table>
+    </div>
+{% endblock content %}

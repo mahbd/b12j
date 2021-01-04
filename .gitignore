@@ -1,0 +1,6 @@
+/venv
+/.idea
+/response.json
+__pycache__
+/firebase_admin.json
+/b12j-front/node_modules/

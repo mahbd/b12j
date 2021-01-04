@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Problem{% endblock title %}
+{% block content %}
+    <div class="container text-white">
+        <a href="{% url 'judge:add_tc' problem.id %}" class="btn-lg btn-outline-success">Add TestCase</a>
+        <h2>{{ problem.title }}</h2>
+        <p>{{ problem.text|safe }}</p>
+        <h4>Input:</h4>
+        <p>{{ problem.inTerms|safe }}</p>
+        <h4>Output</h4>
+        <p>{{ problem.outTerms|safe }}</p>
+        <h4>Correct code</h4>
+        <pre>{{ problem.corCode }}</pre>
+        <h4>Time Limit</h4>
+        {{ problem.time_limit }}
+        <table class="table table-dark text-white table-bordered">
+            <tr>
+                <th>Input</th>
+                <th>OutPut</th>
+            </tr>
+            <tr>
+                <th scope="col">
+                    <pre class="text-white">{{ problem.examples }}</pre>
+                <th scope="col">
+                    <pre class="text-white">{{ problem.examples }}</pre>
+            </tr>
+        </table>
+    </div>
+{% endblock content %}
