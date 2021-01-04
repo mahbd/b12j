@@ -53,4 +53,5 @@ const renderStanding = (objectList, userActs, position = 1) =>
             <td>{Math.floor(parseFloat(item[2]) / 100)}</td>
         </tr>)}
         </tbody>
+
     </table>
