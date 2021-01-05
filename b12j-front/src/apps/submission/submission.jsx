@@ -52,7 +52,7 @@ const renderResult = (result, verdict) => {
         <div>
             <h5>Message: <pre>{data[0]}</pre></h5>
         </div>
-        {verdict !== 'CE' && <table className="table table-bordered">
+        {verdict !== 'CE' && <table className="table table-bordered table-responsive">
             <thead>
             <tr>
                 <td>Input</td>
