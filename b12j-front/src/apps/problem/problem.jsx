@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {FormattedHtml} from "../../common/objectViewFuncs";
 import {SuperContext} from "../../app";
 import ProblemCode from "../../common/fields/problemCode";
@@ -17,6 +17,7 @@ const Problem = ({match, history}) => {
     });
 
     const currentUser = getCurrentUser() && getCurrentUser().id;
+    const is_admin = getCurrentUser() && getCurrentUser().is_superuser;
 
     useEffect(() => {
         setProblem(problemActs.getById(problemId));
@@ -25,8 +26,10 @@ const Problem = ({match, history}) => {
 
     return (
         problem && <div className="container">
-            {currentUser === problem.by &&
-                <Link to={`/problems/edit/${problem.id}`}><button className="btn-lg btn-success">Edit</button></Link>}
+            {(currentUser === problem.by || is_admin) &&
+            <Link to={`/problems/edit/${problem.id}`}>
+                <button className="btn-lg btn-success">Edit</button>
+            </Link>}
             <div className="bgDarkBlue">
                 <h1>{problem.title}</h1>
                 <h3>By <span className="user">{userActs.fullName(problem.by)}</span></h3>
