@@ -1,10 +1,10 @@
 import json
 
 from asgiref.sync import async_to_sync
-from django.core.serializers import serialize
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
 from channels.layers import get_channel_layer
+from django.core.serializers import serialize
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from judge.models import Problem, Tutorial, Submission, Contest, ProblemComment, TutorialComment, TestCase
 
@@ -90,6 +90,7 @@ def tutorial(sender, **kwargs):
 def submission(sender, **kwargs):
     try:
         data = get_model_data(kwargs)
+        data['problem_title'] = kwargs['instance'].problem.title
         data['target'] = 'submission'
         send2all_group(data)
     except AttributeError:

@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from corsheaders.defaults import default_headers
 
 from .settings_helper import link_to_json_file
@@ -139,5 +140,5 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    'x-auth-token', 'token'
+    'x-auth-token', 'token', 'username', 'password'
 ]

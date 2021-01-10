@@ -5,13 +5,13 @@ from random import randint
 from django.core.serializers import serialize
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.shortcuts import get_list_or_404
 from rest_framework import permissions, viewsets, generics
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 
-from api.serializers import UserSerializer, ContestSerializer, ProblemSerializer, ProblemCommentSerializer
 from api.serializers import SubmissionSerializer, TestCaseSerializer, TutorialSerializer, TutorialCommentSerializer
+from api.serializers import UserSerializer, ContestSerializer, ProblemSerializer, ProblemCommentSerializer
 from extra import jwt_writer
 from fun import verify_token
 from judge.models import Contest, Problem, ProblemComment, Submission, TestCase, Tutorial, TutorialComment
@@ -37,6 +37,7 @@ class ContestViewSet(viewsets.ReadOnlyModelViewSet):
                 for contest in json.loads(contests)]
             return Response({"results": contests})
         return Response({"details": "User is not authenticated"}, status=301)
+
     queryset = Contest.objects.all()
     serializer_class = ContestSerializer
 
@@ -155,14 +156,22 @@ def is_logged_in(request):
 
 def verify_login(request):
     try:
-        if request.headers.get('token'):
-            id_token = request.headers.get('token')
-        elif request.headers.get('Token'):
-            id_token = request.headers.get('Token')
-        else:
-            id_token = json.loads(request.body).get('idToken')
+        client_data = json.loads(request.body)
     except json.JSONDecodeError:
-        return JsonResponse({"errors": "Wrong place for jwt"}, status=400)
+        return JsonResponse({"errors": "No data provided"}, status=400)
+    if client_data.get('username'):
+        try:
+            find_user = Q(username=client_data.get('username')) | Q(email=client_data.get('username'))
+            user = User.objects.get(find_user)
+        except User.DoesNotExist:
+            return JsonResponse({"errors": "Wrong username or email"}, status=400)
+        password = client_data.get('password')
+        if user.check_password(raw_password=password):
+            jwt_str = serialize_user(user)
+            return JsonResponse({"jwt": jwt_str})
+        return JsonResponse({"errors": "Wrong password"}, status=400)
+    else:
+        id_token = client_data.get('idToken')
     payload = verify_token(id_token)
     if payload is None:
         return JsonResponse({"errors": "Couldn't login"}, status=400)
@@ -174,23 +183,22 @@ def verify_login(request):
     username = payload['user_id']
     # Login user
     if User.objects.filter(username=username):
-        user = User.objects.filter(username=username)[0]
-        jwt_str = serialize_user(user)
-        return JsonResponse({"jwt": jwt_str})
-    # Register user
-    name_array = name.split(' ')
-    if len(name_array) > 2:
-        if len(name_array[0]) < 4:
-            first_name = ' '.join(name_array[:2])
-            last_name = ' '.join(name_array[2:])
+        user = User.objects.get(username=username)
+    else:
+        # Register user
+        name_array = name.split(' ')
+        if len(name_array) > 2:
+            if len(name_array[0]) < 4:
+                first_name = ' '.join(name_array[:2])
+                last_name = ' '.join(name_array[2:])
+            else:
+                first_name = name_array[0]
+                last_name = name_array[1:]
         else:
             first_name = name_array[0]
-            last_name = name_array[1:]
-    else:
-        first_name = name_array[0]
-        last_name = '' if len(name_array) < 2 else name_array[1]
-    user = User.objects.create_user(username=username, email=email, password=str(randint(100000, 999999)),
-                                    first_name=first_name, last_name=last_name, picture=picture)
+            last_name = '' if len(name_array) < 2 else name_array[1]
+        user = User.objects.create_user(username=username, email=email, password=str(randint(100000, 999999)),
+                                        first_name=first_name, last_name=last_name, picture=picture)
     jwt_str = serialize_user(user)
     return JsonResponse({"jwt": jwt_str})
 

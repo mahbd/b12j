@@ -1,7 +1,7 @@
 import json
 
-from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.serializers import serialize
 
 from judge.models import Contest, Submission, Problem, TestCase, Tutorial
@@ -155,7 +155,12 @@ def problem(request, cur_user):
 
 def submission(request):
     if request['method'] == 'GET':
-        return get_model_data_from_id(Submission, request)
+        data = get_model_data_from_id(Submission, request)
+        try:
+            data['problem_title'] = Submission.objects.get(id=request['id']).problem.title
+        except Submission.DoesNotExist:
+            pass
+        return data
 
 
 def tutorial(request):

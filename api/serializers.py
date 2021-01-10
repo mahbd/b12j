@@ -91,6 +91,7 @@ def judge_connect(submission_id):
 
 class SubmissionSerializer(serializers.ModelSerializer):
     details = serializers.SerializerMethodField()
+    problem_title = serializers.SerializerMethodField()
 
     class Meta:
         model = Submission
@@ -119,6 +120,10 @@ class SubmissionSerializer(serializers.ModelSerializer):
         if submission.details:
             return submission.details
         return json.dumps(['Nothing Found', [['', '', '']]])
+
+    # noinspection PyMethodMayBeStatic
+    def get_problem_title(self, submission):
+        return submission.problem.title
 
 
 class ProblemSerializer(serializers.ModelSerializer):

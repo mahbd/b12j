@@ -1,10 +1,10 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {SuperContext} from "../../app";
 import {Link} from "react-router-dom";
 
 const SubmissionList = ({match}) => {
     const page = parseInt(match.params.page) || 1;
-    const {submissionActs, userActs, problemActs} = useContext(SuperContext);
+    const {submissionActs, userActs} = useContext(SuperContext);
     const [submissionList, setSubmissionList] = useState(submissionActs.getList(page));
     const [reload, setReload] = useState(false);
 
@@ -33,7 +33,7 @@ const SubmissionList = ({match}) => {
                 </thead>
                 <tbody>
                 {submissionList.map((submission) => <tr key={submission.id}>
-                    <td><Link to={`/submissions/${submission.id}`} >{problemActs.getById(submission.problem, 'title')}</Link></td>
+                    <td><Link to={`/submissions/${submission.id}`}>{submission.problem_title}</Link></td>
                     <td>{submission.verdict}</td>
                     <td>{userActs.firstName(submission.by)}</td></tr>)}
                 </tbody>

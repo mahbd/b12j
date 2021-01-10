@@ -1,4 +1,4 @@
-import React, {useEffect, useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import http from "../../common/httpService";
 import {SuperContext} from "../../app";
 import {Link} from "react-router-dom";
@@ -30,7 +30,7 @@ const Profile = () => {
     }, [])
     return (
         <div className="container pt-5">
-            <button className="btn btn-danger" onClick={logout}>Logout</button>
+            <button className="btn btn-danger" onClick={() => logout('/')}>Logout</button>
             <div className="row">
                 <div className="col-sm">
                     <b>Contest set by you</b>
