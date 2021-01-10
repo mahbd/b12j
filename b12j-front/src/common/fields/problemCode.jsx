@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import httpService from "../httpService";
 import {SuperContext} from "../../app";
 import {getCurrentUser} from "../authService";
@@ -16,8 +16,12 @@ const ProblemCode = ({problem, history}) => {
 
     const handleChange = ({currentTarget}) => {
         const {name, value} = currentTarget;
-        if (name === 'language') setLanguage(value);
-        else if (name === problem.id) setCode(value);
+        if (name === 'language') {
+            if (value === "c_cpp" && code === '') {
+                setCode("#include<bits/stdc++.h>\n#define ll long long\nusing namespace std;\nint main() {\n\t\n}")
+            }
+            setLanguage(value);
+        } else if (name === problem.id) setCode(value);
         else if (name === 'theme') setTheme(value);
         else if (name === 'font') setFont(value);
     };
@@ -75,7 +79,6 @@ const ProblemCode = ({problem, history}) => {
             <CodeEditor mode={language} value={code} theme={theme} onChange={handleChange} name={problem.id}
                         font={font}/>
             {!user && <div className="alert alert-danger">Please login to submit</div>}
-            <div className="alert alert-info">If you're coping code from anywhere then please press space after pasting or you will get error</div>
             <button disabled={!user} className="btn btn-success" onClick={submit}>Submit</button>
         </div>
     );

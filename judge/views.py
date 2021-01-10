@@ -13,7 +13,7 @@ User = get_user_model()
 judge_url = os.environ.get('JUDGE_URL', 'http://127.0.0.1:8001/')
 
 
-def add_test_case(request, problem_id):
+def add_tc(request, problem_id):
     problem = get_object_or_404(Problem, id=problem_id)
     context = {"problem": problem, "error": None}
     if request.method == 'POST':
@@ -29,10 +29,23 @@ def add_test_case(request, problem_id):
         if data['status'] == 'OK':
             tc.output = data['output']
             tc.save()
-            context = {"test_case": tc}
-            return render(request, 'contest/test_case_success.html', context)
-        context = {"problem": problem, "error": data['status']}
+            return {"test_case": tc}
+        return {"problem": problem, "error": data['status']}
+    return context
+
+
+def add_test_case(request, problem_id):
+    context = add_tc(request, problem_id)
+    if context.get('test_case'):
+        return render(request, 'contest/test_case_success.html', context)
     return render(request, 'contest/test_case.html', context)
+
+
+def add_test_case_python(request, problem_id):
+    context = add_tc(request, problem_id)
+    if context.get('test_case'):
+        return JsonResponse({'output': context.get('test_case').output})
+    return JsonResponse({}, status=400)
 
 
 @login_required

@@ -1,11 +1,35 @@
 import jwtDecode from 'jwt-decode';
 import httpService from "./httpService";
-import {apiEndpoint} from "../configuration";
+import {apiEndpoint, firebaseConfig} from "../configuration";
 
 
 export function logout(redirectURL = '/') {
     localStorage.removeItem("token");
     window.location = redirectURL
+}
+
+export const firebaseLoginImplement = (history) => {
+    const firebaseui = window.firebaseui;
+    const firebase = window.firebase;
+    firebase.initializeApp(firebaseConfig);
+
+    const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    const uiConfig = {
+        callbacks: {
+            signInSuccessWithAuthResult: () => {
+                history.push("/users/loginServe");
+                return true;
+            },
+        },
+        signInFlow: 'popup',
+        // signInSuccessUrl: "/users/loginServe",
+        signInOptions: [
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+            firebase.auth.GithubAuthProvider.PROVIDER_ID,
+        ],
+    };
+    ui.start('#firebaseui-auth-container', uiConfig);
 }
 
 export const loginWithPassword = async (username, password) => {

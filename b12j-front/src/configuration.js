@@ -12,7 +12,7 @@ export const jwtTokenKey = "token";
 
 const apiURL = () => {
     if (document.domain === "localhost") return "http://127.0.0.1:8000/api";
-    else return  document.location.protocol + "//" + document.location.host + "/api"
+    else return document.location.protocol + "//" + document.location.host + "/api"
 }
 
 export const apiEndpoint = apiURL();
@@ -20,7 +20,7 @@ export const apiEndpoint = apiURL();
 export const wssURL = () => {
     const protocol = document.location.protocol === "https:" ? "wss://" : "ws://";
     if (document.domain === "localhost") return protocol + "127.0.0.1:8000/ws";
-    return  protocol + document.location.host + "/ws";
+    return protocol + document.location.host + "/ws";
 }
 
 export const projectURLS = {
@@ -105,3 +105,14 @@ export const navBar = {
         }
     ]
 }
+
+export const firebaseConfig = {
+    apiKey: "AIzaSyB9n-TJY1hy49WoECQH7fZXlxA7lKI2VH4",
+    authDomain: "b12j-mah.firebaseapp.com",
+    databaseURL: "https://b12j-mah.firebaseio.com",
+    projectId: "b12j-mah",
+    storageBucket: "b12j-mah.appspot.com",
+    messagingSenderId: "704405925886",
+    appId: "1:704405925886:web:2066da3c25584a7ed4daaf",
+    measurementId: "G-XE9M4QRX4J"
+};

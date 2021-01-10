@@ -1,54 +1,56 @@
-import React, {Component} from 'react';
+import React, {useEffect} from 'react';
 
-export default class TextEditor extends Component {
+const TextEditor = ({onChange, name = "testEditor", label = "Hello editor", value = ""}) => {
+    const Quill = window.Quill;
 
-    constructor(props) {
-        super(props);
-        this.editorContainer = React.createRef();
+    const handleChange = (content) => {
+        const obj = {currentTarget: {name: name, value: content}}
+        onChange(obj)
     }
 
-    componentDidMount() {
-        const script2 = document.createElement('script');
-        script2.type = 'text/javascript';
-        script2.async = true;
-        script2.innerText = "function imageHandler() {var range = this.quill.getSelection();" +
-            "var value = prompt('please copy paste the image url here.');" +
-            "if (value) {this.quill.insertEmbed(range.index, 'image', value, Quill.sources.USER);}}"
-        document.body.appendChild(script2);
+    const imageHandler = (editor) => {
+        const range = editor.getSelection();
+        const value = prompt('please copy paste the image url here.');
+        if (value) {
+            editor.insertEmbed(range.index, 'image', value, Quill.sources.USER);
+        }
+    }
+
+    const editorScript = () => {
+        const editor = new Quill("#" + name, {
+            'theme': 'snow', 'modules': {
+                'toolbar': {
+                    'container': [['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'], ['link', 'image'], [{'list': 'ordered'}, {'list': 'bullet'}],
+                        [{'script': 'sub'}, {'script': 'super'}], [{'header': [1, 2, 3, 4, 5, 6, false]}],
+                        [{'color': []}, {'background': []}], [{'align': []}]],
+                    handlers: {image: () => imageHandler(editor)}
+                }
+            }
+        });
+        editor.container.firstChild.innerHTML = value;
+        editor.on('text-change', () => {
+            handleChange(editor.container.firstChild.innerHTML);
+        });
+    }
+
+    useEffect(() => {
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.async = true;
-
-        script.innerText = `var editor = new Quill('#${this.props.name}',
-        {'theme': 'snow', 'modules':{'toolbar':{ 'container': [ ['bold', 'italic', 'underline', 'strike'],
-        ['blockquote', 'code-block'], ['link', 'image'], [{'list': 'ordered'}, {'list': 'bullet'}],
-         [{'script': 'sub'}, {'script': 'super'}], [{'header': [1, 2, 3, 4, 5, 6, false]}], [{'color': []},
-          {'background': []}], [{'align': []}]], handlers:{image: imageHandler}  } }});`;
-
+        script.innerText = editorScript();
         document.body.appendChild(script);
-    }
-
-    formatHtml = (text) => {
-        if (text) {
-            return {__html: `${text}`}
+        return () => {
+            document.body.removeChild(script);
         }
-        return {__html: "<span />"}
-    }
+    }, []);
 
-    extract = () => {
-        let content = this.editorContainer.current.getElementsByClassName('ql-editor')[0]
-        const obj = {currentTarget: {name: this.props.name, value: content.innerHTML}}
-        this.props.onChange(obj)
-    }
+    return (
+        <div>
+            <label htmlFor={name}><h3>{label}</h3></label>
+            <div id={name}/>
+        </div>
+    );
+};
 
-    render() {
-        const {label, name, value} = this.props
-        return (
-            <React.Fragment>
-                <label htmlFor={name}><h3>{label}</h3></label>
-                <div ref={this.editorContainer} id={name} onKeyUp={this.extract}
-                     dangerouslySetInnerHTML={this.formatHtml(value)}/>
-            </React.Fragment>
-        )
-    }
-}
+export default TextEditor;
