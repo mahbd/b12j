@@ -31,6 +31,7 @@ const Profile = () => {
     return (
         <div className="container pt-5">
             <button className="btn btn-danger" onClick={() => logout('/')}>Logout</button>
+            <a className="btn btn-success" href={"/users/password_change/"}>Change Password</a>
             <div className="row">
                 <div className="col-sm">
                     <b>Contest set by you</b>

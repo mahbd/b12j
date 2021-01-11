@@ -6,6 +6,7 @@ from django.core.serializers import serialize
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404
+from django.utils import timezone
 from rest_framework import permissions, viewsets, generics
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
@@ -147,10 +148,11 @@ class TestCaseViewSet(viewsets.ModelViewSet):
 def is_logged_in(request):
     user = is_valid_jwt_header(request)
     if user:
+        user.last_login = timezone.now()
+        user.save()
         logged = True
     else:
         logged = False
-    print(logged)
     return JsonResponse({"status": logged})
 
 

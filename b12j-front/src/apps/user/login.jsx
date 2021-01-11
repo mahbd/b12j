@@ -35,10 +35,21 @@ const Login = ({history}) => {
             </div>
             <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 <div className="collapse" id="collapseExample" style={{width: "220px"}}>
-                    <input type="text" value={username} name="username" onChange={handleInputChange}/>
-                    <input type="password" value={password} name="password" onChange={handleInputChange}/>
-                    <button className="btn btn-success" onClick={() => loginWithPassword(username, password)}>Sign In
-                    </button>
+                    <input type="text" value={username} name="username" placeholder="Email/Username"
+                           onChange={handleInputChange}/>
+                    <input type="password" value={password} name="password" placeholder="Password"
+                           onChange={handleInputChange}/>
+                    <div className="row" style={{width: "220px"}}>
+                        <div className="col-4">
+                            <button className="btn btn-success" onClick={() => loginWithPassword(username, password)}
+                                    style={{width: "63px"}}>SignIn
+                            </button>
+                        </div>
+                        <div className="col-8">
+                            <a className="btn btn-primary" href={"/users/password_reset/"} style={{width: "145px"}}>Reset
+                                Password</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

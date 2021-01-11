@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('judge/', include('judge.urls')),
     path('ws/', include('ws.urls')),
+    path('users/', include('user.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

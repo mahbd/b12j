@@ -109,36 +109,43 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
-MEDIA_URL = '/media/'
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'b12j-front', 'build', 'static'), )
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static/')
-
-AUTH_USER_MODEL = 'user.User'
-AUTH_USER_GROUP = 'user.UserGroup'
-AUTHENTICATION_BACKENDS = ['user.backends.ModelBackendWithJWT']
-
-# Channels
-ASGI_APPLICATION = 'b12j.routing.application'
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
-REST_FRAMEWORK = {
-    # 'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'user.backends.RestBackendWithJWT',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
+#####################################################################
+MEDIA_ROOT = os.path.join(PROJECT_DIR, str('media/'))  #
+MEDIA_URL = '/media/'  #
+STATIC_URL = '/static/'  #
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'b12j-front', 'build', 'static'),)
+STATIC_ROOT = os.path.join(PROJECT_DIR, str('static/'))  #
+LOGIN_URL = '/users/login/'  #
+#####################################################################
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  #
+EMAIL_HOST = "smtp.gmail.com"  #
+EMAIL_HOST_USER = os.environ.get('EMAIL')  #
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')  #
+EMAIL_PORT = 587  #
+EMAIL_USE_TLS = True  #
+#####################################################################
+AUTH_USER_MODEL = 'user.User'  #
+AUTH_USER_GROUP = 'user.UserGroup'  #
+AUTHENTICATION_BACKENDS = ['user.backends.ModelBackendWithJWT']  #
+#####################################################################
+ASGI_APPLICATION = 'b12j.routing.application'  #
+CHANNEL_LAYERS = {  #
+    "default": {  #
+        "BACKEND": "channels.layers.InMemoryChannelLayer"  #
+    }  #
+}  #
+#####################################################################
+REST_FRAMEWORK = {  #
+    'DEFAULT_AUTHENTICATION_CLASSES': [  #
+        'user.backends.RestBackendWithJWT',  #
+        'rest_framework.authentication.SessionAuthentication',  #
+    ],  #
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 30,
-}
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'x-auth-token', 'token', 'username', 'password'
-]
+    'PAGE_SIZE': 30,  #
+}  #
+#####################################################################
+CORS_ALLOW_ALL_ORIGINS = True  #
+CORS_ALLOW_HEADERS = list(default_headers) + [  #
+    'x-auth-token', 'token', 'username', 'password'  #
+]  #
+#####################################################################
