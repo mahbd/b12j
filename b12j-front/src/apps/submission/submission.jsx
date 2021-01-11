@@ -20,25 +20,26 @@ const Submission = ({match}) => {
     const currentUser = getCurrentUser() && getCurrentUser().id;
 
     return (
-        <div className="container">
-            {submission && <div>
-                <div><h5>Submitter: {userActs.fullName(submission.by)}</h5></div>
-                <div><h5>Contest: {contestActs.getById(submission.contest, 'title')}</h5></div>
-                <div><h5>Problem: {problemActs.getById(submission.problem, 'title')}</h5></div>
-                <div><h5 className="text-nowrap">Verdict: {verdictProcess(submission.verdict)}</h5></div>
-                {contest && <div>
-                {(contestEnd <= Date.now() || submission.by === currentUser) && <span>
-                <div><h5>Your Code:</h5>
-                    <pre className="bg-light text-primary">{submission.code}</pre>
-                </div>
-                    {renderResult(submission.details, submission.verdict)}
-                </span>}
+        submission && <div className="container">
+            <div><h5>Submitter: {userActs.fullName(submission.by)}</h5></div>
+            <div><h5>Contest: {contestActs.getById(submission.contest, 'title')}</h5></div>
+            <div><h5>Problem: {problemActs.getById(submission.problem, 'title')}</h5></div>
+            <div><h5 className="text-nowrap">Verdict: {verdictProcess(submission.verdict)}</h5></div>
+            {contest &&
+            <div>
+                {(contestEnd <= Date.now() || submission.by === currentUser) &&
+                <span>
+                        <div>
+                            <h5>Your Code:</h5>
+                            <pre className="bg-light text-primary">{submission.code}</pre>
+                        </div>
+                    {submissionActs.submissionDetails(submissionId) && renderResult(submissionActs.submissionDetails(submissionId), submission.verdict)}
+                    </span>}
                 {(contestEnd > Date.now() && submission.by !== currentUser) &&
                 <h2 className="text-danger">You can't see full info during contest</h2>
                 }
-                </div>}
-
             </div>}
+
         </div>
     );
 };

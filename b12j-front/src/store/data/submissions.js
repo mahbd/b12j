@@ -46,6 +46,15 @@ export class submissionActions extends basicActions {
         return this.list(this.store.getState().submissions.list[page]);
     }
 
+    submissionDetails = (id) => {
+        const submission = this.getById(id);
+        if (submission) {
+            if (!submission.details) this._loadById(id);
+            else return submission.details;
+        }
+        return null;
+    }
+
     totalPages = () => {
         return this.store.getState()[this.name + 's'].total;
     }
