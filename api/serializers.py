@@ -94,9 +94,11 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = '__all__'
+        exclude = ('details',)
         read_only_fields = ['verdict', 'contest', 'by', 'time_code']
-        write_only_fields = ['code']
+        extra_kwargs = {
+            'code': {'write_only': True},
+        }
 
     def create(self, validated_data):
         submission = Submission(by=self.context['request'].user,
