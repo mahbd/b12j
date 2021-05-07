@@ -1,9 +1,9 @@
 import React, {useContext, useState} from 'react';
 import httpService from "../httpService";
-import {SuperContext} from "../../app";
 import {getCurrentUser} from "../authService";
 import CodeEditor from "./codeEditor";
 import {apiEndpoint} from "../../configuration";
+import {SuperContext} from "../../context";
 
 const ProblemCode = ({problem, history}) => {
     const {submissionActs} = useContext(SuperContext)

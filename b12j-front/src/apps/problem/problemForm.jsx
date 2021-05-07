@@ -1,8 +1,8 @@
 import React, {useContext, useState} from 'react';
 import TextEditor from "../../common/fields/TextEditor";
 import Input from "../../common/fields/input";
-import {SuperContext} from "../../app";
 import CodeEditor from "../../common/fields/codeEditor";
+import {SuperContext} from "../../context";
 
 const ProblemForm = ({match, history}) => {
     const {contestId, problemId} = match.params;

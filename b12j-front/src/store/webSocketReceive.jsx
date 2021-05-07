@@ -1,9 +1,10 @@
 import React, {useContext} from 'react';
-import {SuperContext} from "../app";
+import {SuperContext} from "../context";
 
 const WebSocketReceive = () => {
     const {ws, contestActs, problemActs, submissionActs, userActs, tutorialActs} = useContext(SuperContext);
     ws.addEventListener('message', (e) => {
+        console.log(e);
         const data = JSON.parse(e.data).data;
         if(data.target === 'contest') contest(contestActs, data);
         if(data.target === 'problem') problem(problemActs, data);

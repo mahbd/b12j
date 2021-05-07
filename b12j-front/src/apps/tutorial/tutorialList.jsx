@@ -1,16 +1,11 @@
 import React, {useContext, useState} from 'react';
 import {Link} from "react-router-dom";
-import {SuperContext} from "../../app";
+import {SuperContext} from "../../context";
 
 const TutorialList = ({match}) => {
     const {contestId} = match.params;
     const {tutorialActs, userActs} = useContext(SuperContext);
-    const [tutorials, setTutorials] = useState(tutorialActs.getList(contestId));
-
-    let unSubscribe = tutorialActs.store.subscribe(() => {
-        setTutorials(tutorialActs.getList(contestId));
-        unSubscribe();
-    });
+    const [tutorials] = useState(tutorialActs.getList(contestId));
 
     return (
         <div className="container">

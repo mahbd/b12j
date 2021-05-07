@@ -1,17 +1,19 @@
 import React, {useContext} from 'react';
 import {NavLink} from "react-router-dom";
-import {SuperContext} from "../app";
+import {css} from "../main_css";
+import {SuperContext} from "../context";
 
 const NavBar = () => {
     const {userActs} = useContext(SuperContext);
     const user = userActs.currentUser();
     return (
-        <nav className="navbar navbar-expand navbar-dark bg-dark">
-            {/*<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"*/}
-            {/*        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">*/}
-            {/*    <span className="navbar-toggler-icon"/>*/}
-            {/*</button>*/}
-            <div className="" id="navbarNav">
+        <nav className={css.navbar}>
+            <button className="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span className="navbar-toggler-icon"/>
+            </button>
+            <div className="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul className="navbar-nav">
                     <li className="nav-item">
                         <NavLink className="nav-link" to="/">Home <span className="sr-only">(current)</span></NavLink>

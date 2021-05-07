@@ -2,11 +2,11 @@ import ReactDOM from 'react-dom';
 import {BrowserRouter} from "react-router-dom";
 
 import './common/cssLibrary.css';
-import App from "./app";
+import ParentApp from "./parentApp";
 
 ReactDOM.render(
     <BrowserRouter>
-        <App />
+        <ParentApp />
     </BrowserRouter>,
     document.getElementById('root')
 );

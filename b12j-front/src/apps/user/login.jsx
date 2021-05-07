@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {SuperContext} from "../../app";
 import {firebaseLoginImplement, loginWithPassword} from "../../common/authService";
+import {SuperContext} from "../../context";
 
 const Login = ({history}) => {
     const {userActs} = useContext(SuperContext);

@@ -1,9 +1,9 @@
 import React, {useContext, useEffect, useState} from 'react';
 import http from "../../common/httpService";
-import {SuperContext} from "../../app";
 import {Link} from "react-router-dom";
 import {logout} from "../../common/authService";
 import {apiEndpoint} from "../../configuration";
+import {SuperContext} from "../../context";
 
 const Profile = () => {
     const {problemActs} = useContext(SuperContext);

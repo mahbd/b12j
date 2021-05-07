@@ -6,7 +6,7 @@ from jwcrypto import jwk, jwt, jws
 
 from b12j import settings
 from b12j.settings_helper import ConfigFileManagement
-from user.models import User
+from users.models import User
 
 
 def jwk_key():

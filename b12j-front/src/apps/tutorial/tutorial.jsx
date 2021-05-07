@@ -1,17 +1,11 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {SuperContext} from "../../app";
 import {FormattedHtml} from "../../common/objectViewFuncs";
+import {SuperContext} from "../../context";
 
 const Tutorial = ({match}) => {
     const {tutorialActs, userActs} = useContext(SuperContext);
     const {tutorialId} = match.params;
     const [tutorial, setTutorial] = useState(tutorialActs.getById(tutorialId));
-    const [reload, setReload] = useState(false);
-
-    tutorialActs.store.subscribe(() => {
-        setTutorial(tutorialActs.getById(tutorialId));
-        setReload(!reload);
-    });
 
     useEffect(() => {
         setTutorial(tutorialActs.getById(tutorialId));

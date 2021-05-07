@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 
 from judge.models import get_random_id, Contest, Problem, TestCase, Submission
-from user.models import UserGroup
+from users.models import UserGroup
 
 User = get_user_model()
 

@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('user', '__first__'),
+        ('users', '__first__'),
     ]
 
     operations = [
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('timestamp', models.DateField(default=django.utils.timezone.now)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='user.Student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.Student')),
                 ('subject', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='attendance.Subject')),
             ],
         ),

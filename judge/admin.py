@@ -1,7 +1,10 @@
 from django.contrib import admin
-from .models import Contest, Problem, ProblemComment, Submission, TestCase, TutorialTopic, Tutorial, TutorialComment
+from .models import Contest
 
 
+# , Problem, ProblemComment, Submission, TestCase, TutorialTopic, Tutorial, TutorialComment
+
+@admin.register(Contest)
 class ContestAdmin(admin.ModelAdmin):
     search_fields = ['title', 'hosts__first_name', 'hosts__last_name', 'group__name']
     list_display = ['title', 'start_time', 'end_time']
@@ -21,11 +24,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ['problem__title', 'contest__title', 'by__first_name', 'by__last_name']
 
 
-admin.site.register(Contest, ContestAdmin)
-admin.site.register(Problem, ProblemAdmin)
-admin.site.register(ProblemComment, ProblemCommentAdmin)
-admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(TestCase)
-admin.site.register(Tutorial)
-admin.site.register(TutorialComment)
-admin.site.register(TutorialTopic)
+# admin.site.register(Problem, ProblemAdmin)
+# admin.site.register(ProblemComment, ProblemCommentAdmin)
+# admin.site.register(Submission, SubmissionAdmin)
+# admin.site.register(TestCase)
+# admin.site.register(Tutorial)
+# admin.site.register(TutorialComment)
+# admin.site.register(TutorialTopic)

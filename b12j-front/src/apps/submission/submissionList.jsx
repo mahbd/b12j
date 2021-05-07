@@ -1,18 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {SuperContext} from "../../app";
 import {Link} from "react-router-dom";
+import {SuperContext} from "../../context";
 
 const SubmissionList = ({match}) => {
     const page = parseInt(match.params.page) || 1;
     const {submissionActs, userActs} = useContext(SuperContext);
     const [submissionList, setSubmissionList] = useState(submissionActs.getList(page));
-    const [reload, setReload] = useState(false);
-
-    let unSubscribe = submissionActs.store.subscribe(() => {
-        setSubmissionList(submissionActs.getList(page));
-        unSubscribe();
-        setReload(!reload);
-    });
 
     useEffect(() => {
         setSubmissionList(submissionActs.getList(page));

@@ -4,16 +4,16 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.serializers import serialize
 
-from judge.models import Contest, Submission, Problem, TestCase, Tutorial
-from user.models import User, UserGroup
+from judge.models import Contest
+# Submission, Problem, TestCase, Tutorial
+from users.models import User
 from ws.models import ActiveChannels
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope['user']
-        self.room_group_name = get_group_name(self.user)
-        await add_new_channel(self.scope['user'], self.channel_name, self.room_group_name)
+        self.room_group_name = 'nice'
+        # await add_new_channel(self.scope['users'], self.channel_name, self.room_group_name)
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -34,11 +34,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         if text_data_json.get('method'):
-            message = await route_to_view(text_data_json, self.user)
+            message = await route_to_view(text_data_json)
             await self.send(text_data=json.dumps({'data': message}))
         else:
             message = text_data_json['data']
             # Send message to room group
+            print(message)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -49,6 +50,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from room group
     async def send_data(self, event):
+        print(event)
         message = event['data']
         if not message['target']:
             return
@@ -96,22 +98,23 @@ def get_model_data_from_id(model, request):
 
 
 @database_sync_to_async
-def route_to_view(data, cur_user):
+def route_to_view(data):
     if data.get('target') == 'user':
         return user(data)
     elif data.get('target') == 'contest':
         return contest(data)
-    elif data.get('target') == 'problem':
-        return problem(data, cur_user)
-    elif data.get('target') == 'submission':
-        return submission(data)
-    elif data.get('target') == 'tutorial':
-        return tutorial(data)
+    # elif data.get('target') == 'problem':
+    #     return problem(data, cur_user)
+    # elif data.get('target') == 'submission':
+    #     return submission(data)
+    # elif data.get('target') == 'tutorial':
+    #     return tutorial(data)
 
 
 def user(request):
     if request['method'] == 'GET':
-        return get_model_data_from_id(User, request)
+        user_here = get_model_data_from_id(User, request)
+        return user_here
 
 
 def contest(request):
@@ -119,50 +122,50 @@ def contest(request):
         return get_model_data_from_id(Contest, request)
 
 
-def problem(request, cur_user):
-    if request['method'] == 'GET':
-        data = get_model_data_from_id(Problem, request)
-        try:
-            test_cases = TestCase.objects.filter(problem_id=data['id'])
-        except TypeError:
-            return {'target': False}
-        test = [{"input": test_case.inputs, "output": test_case.output} for test_case in
-                test_cases[:data['examples']]]
-        data['test_cases'] = test
-        return data
-    if request['method'] == 'POST':
-        if cur_user.is_authenticated:
-            group = UserGroup.objects.all()[0]
-            Problem.objects.create(**request['data'], by=cur_user, group=group)
-        return {'target': False}
-    if request['method'] == 'PUT':
-        if cur_user.is_authenticated:
-            problem_obj = Problem.objects.get(id=request['id'])
-            data = request['data']
-            problem_obj.title = data['title']
-            problem_obj.text = data['text']
-            problem_obj.inTerms = data['inTerms']
-            problem_obj.outTerms = data['outTerms']
-            problem_obj.corCode = data['corCode']
-            problem_obj.time_limit = data['time_limit']
-            problem_obj.examples = data['examples']
-            problem_obj.notice = data['notice']
-            problem_obj.group_id = data['group']
-            problem_obj.conProbId = data['conProbId']
-            problem_obj.save()
-        return {'target': False}
-
-
-def submission(request):
-    if request['method'] == 'GET':
-        data = get_model_data_from_id(Submission, request)
-        try:
-            data['problem_title'] = Submission.objects.get(id=request['id']).problem.title
-        except Submission.DoesNotExist:
-            pass
-        return data
-
-
-def tutorial(request):
-    if request['method'] == 'GET':
-        return get_model_data_from_id(Tutorial, request)
+# def problem(request, cur_user):
+#     if request['method'] == 'GET':
+#         data = get_model_data_from_id(Problem, request)
+#         try:
+#             test_cases = TestCase.objects.filter(problem_id=data['id'])
+#         except TypeError:
+#             return {'target': False}
+#         test = [{"input": test_case.inputs, "output": test_case.output} for test_case in
+#                 test_cases[:data['examples']]]
+#         data['test_cases'] = test
+#         return data
+#     if request['method'] == 'POST':
+#         if cur_user.is_authenticated:
+#             group = UserGroup.objects.all()[0]
+#             Problem.objects.create(**request['data'], by=cur_user, group=group)
+#         return {'target': False}
+#     if request['method'] == 'PUT':
+#         if cur_user.is_authenticated:
+#             problem_obj = Problem.objects.get(id=request['id'])
+#             data = request['data']
+#             problem_obj.title = data['title']
+#             problem_obj.text = data['text']
+#             problem_obj.inTerms = data['inTerms']
+#             problem_obj.outTerms = data['outTerms']
+#             problem_obj.corCode = data['corCode']
+#             problem_obj.time_limit = data['time_limit']
+#             problem_obj.examples = data['examples']
+#             problem_obj.notice = data['notice']
+#             problem_obj.group_id = data['group']
+#             problem_obj.conProbId = data['conProbId']
+#             problem_obj.save()
+#         return {'target': False}
+#
+#
+# def submission(request):
+#     if request['method'] == 'GET':
+#         data = get_model_data_from_id(Submission, request)
+#         try:
+#             data['problem_title'] = Submission.objects.get(id=request['id']).problem.title
+#         except Submission.DoesNotExist:
+#             pass
+#         return data
+#
+#
+# def tutorial(request):
+#     if request['method'] == 'GET':
+#         return get_model_data_from_id(Tutorial, request)

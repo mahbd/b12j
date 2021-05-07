@@ -12,11 +12,11 @@ def index(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('judge/', include('judge.urls')),
+    # path('judge/', include('judge.urls')),
     path('ws/', include('ws.urls')),
-    path('users/', include('user.urls')),
+    path('users/', include('users.urls')),
+    re_path('$', index)
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += re_path('$', index),

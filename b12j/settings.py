@@ -1,9 +1,13 @@
 import os
+import sys
 from pathlib import Path
 
+import django.db.models
 from corsheaders.defaults import default_headers
 
 from .settings_helper import link_to_json_file
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = os.path.dirname(__file__)
@@ -28,11 +32,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'channels',
-    'user',
+    'users',
     'ws',
     'judge',
     'api',
-    'attendance',
+    # 'attendance',
 ]
 
 MIDDLEWARE = [
@@ -68,22 +72,15 @@ WSGI_APPLICATION = 'b12j.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'ENFORCE_SCHEMA': False,
-        'NAME': 'b12j_db',
-        os.environ.get('MONGO_B12J', False) and
-        'CLIENT': {
-            'host': os.environ.get('MONGO_B12J'),
-            'username': os.environ.get('MONGO_USERNAME'),
-            'password': os.environ.get('MONGO_PASSWORD'),
-            'authMechanism': 'SCRAM-SHA-1'
-        },
-        not os.environ.get('MONGO_B12J', False) and
-        'CLIENT': {
-            'host': "mongodb://localhost:27017/"
-        }
-    }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'b12j',
+        'USER': 'b12j_admin',
+        'PASSWORD': os.environ.get('B12J_DB_PASS'),
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    },
 }
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -119,14 +116,13 @@ LOGIN_URL = '/users/login/'  #
 #####################################################################
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  #
 EMAIL_HOST = "smtp.gmail.com"  #
-EMAIL_HOST_USER = os.environ.get('EMAIL')  #
+EMAIL_HOST_USER = 'mahmuduly2000@gmail.com'  #
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')  #
 EMAIL_PORT = 587  #
 EMAIL_USE_TLS = True  #
 #####################################################################
-AUTH_USER_MODEL = 'user.User'  #
-AUTH_USER_GROUP = 'user.UserGroup'  #
-AUTHENTICATION_BACKENDS = ['user.backends.ModelBackendWithJWT']  #
+AUTH_USER_MODEL = 'users.User'  #
+AUTHENTICATION_BACKENDS = ['users.backends.ModelBackendWithJWT']  #
 #####################################################################
 ASGI_APPLICATION = 'b12j.routing.application'  #
 CHANNEL_LAYERS = {  #
@@ -137,8 +133,8 @@ CHANNEL_LAYERS = {  #
 #####################################################################
 REST_FRAMEWORK = {  #
     'DEFAULT_AUTHENTICATION_CLASSES': [  #
-        'user.backends.RestBackendWithJWT',  #
         'rest_framework.authentication.SessionAuthentication',  #
+        'users.backends.RestBackendWithJWT',  #
     ],  #
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 30,  #
@@ -149,3 +145,6 @@ CORS_ALLOW_HEADERS = list(default_headers) + [  #
     'x-auth-token', 'token', 'username', 'password'  #
 ]  #
 #####################################################################
+
+# Constants
+EMAIL_REGEX = r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'

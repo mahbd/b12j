@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from rest_framework import serializers
 
-from user.models import Student
+from users.models import Student
 
 
 class Subject(models.Model):

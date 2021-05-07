@@ -1,14 +1,9 @@
-import React, {useContext, useState, useEffect} from 'react';
-import {SuperContext} from "../../app";
+import React, {useContext, useState} from 'react';
+import {SuperContext} from "../../context";
 
 const UserList = () => {
     const {userActs} = useContext(SuperContext);
-    const [users, setUsers] = useState(userActs.getList());
-    useEffect(() => {
-        userActs.store.subscribe(() => {
-            setUsers(userActs.getList());
-        })
-    });
+    const [users] = useState(userActs.getList());
     return (
         <div className="container">
             <table className="table table-dark table-bordered">

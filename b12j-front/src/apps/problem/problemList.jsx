@@ -1,16 +1,11 @@
 import React, {useContext, useState} from 'react';
 import {Link} from "react-router-dom";
-import {SuperContext} from "../../app";
+import {SuperContext} from "../../context";
 
 const ProblemList = ({match}) => {
     const {contestId} = match.params;
     const {problemActs, userActs} = useContext(SuperContext);
-    const [problems, setProblems] = useState(problemActs.getList(contestId));
-
-    let unSubscribe = problemActs.store.subscribe(() => {
-        setProblems(problemActs.getList(contestId));
-        unSubscribe();
-    });
+    const [problems] = useState(problemActs.getList(contestId));
 
     return (
         <div className="container">

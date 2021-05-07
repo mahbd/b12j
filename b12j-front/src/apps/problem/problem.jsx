@@ -1,20 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {FormattedHtml} from "../../common/objectViewFuncs";
-import {SuperContext} from "../../app";
 import ProblemCode from "../../common/fields/problemCode";
 import {Link} from "react-router-dom";
 import {getCurrentUser} from "../../common/authService";
+import {SuperContext} from "../../context";
 
 const Problem = ({match, history}) => {
     const {problemActs, userActs} = useContext(SuperContext);
     const {problemId} = match.params;
     const [problem, setProblem] = useState(problemActs.getById(problemId));
-    const [reload, setReload] = useState(false);
-
-    problemActs.store.subscribe(() => {
-        setProblem(problemActs.getById(problemId));
-        setReload(!reload);
-    });
 
     const currentUser = getCurrentUser() && getCurrentUser().id;
     const is_admin = getCurrentUser() && getCurrentUser().is_superuser;

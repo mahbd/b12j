@@ -1,7 +1,7 @@
+from django.db import models
 from django.utils import timezone
-from djongo import models
 
-from user.models import User
+from users.models import User
 
 
 class ActiveChannels(models.Model):

@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import http from "../../common/httpService";
-import {SuperContext} from "../../app";
 import {apiEndpoint} from "../../configuration";
+import {SuperContext} from "../../context";
 
 const url = apiEndpoint
 

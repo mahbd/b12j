@@ -1,20 +1,12 @@
 import React, {useContext, useState} from 'react';
-import {SuperContext} from "../../app";
 import {getCurrentUser} from "../../common/authService";
+import {SuperContext} from "../../context";
 
 const Submission = ({match}) => {
     const {submissionId} = match.params;
     const {submissionActs, userActs, contestActs, problemActs} = useContext(SuperContext);
-    const [submission, setSubmission] = useState(submissionActs.getById(submissionId));
-    const [contest, setContest] = useState(contestActs.getById(submission && submission.contest))
-    const [reload, setReload] = useState(false);
-
-    let unSubscribe = submissionActs.store.subscribe(() => {
-        setSubmission(submissionActs.getById(submissionId));
-        setContest(contestActs.getById(submission && submission.contest))
-        unSubscribe();
-        setReload(!reload);
-    })
+    const [submission] = useState(submissionActs.getById(submissionId));
+    const [contest] = useState(contestActs.getById(submission && submission.contest))
 
     const contestEnd = new Date((contest && contest.end_time) || Date.now().toLocaleString());
     const currentUser = getCurrentUser() && getCurrentUser().id;

@@ -1,10 +1,10 @@
 import React, {useContext, useState} from 'react';
-import {SuperContext} from "../../app";
 import ProblemList from "../problem/problemList";
 import Countdown from "react-countdown";
 import TutorialList from "../tutorial/tutorialList";
 import {Link} from "react-router-dom";
 import {FormattedHtml} from "../../common/objectViewFuncs";
+import {SuperContext} from "../../context";
 
 const Contest = ({match}) => {
     const {contestId} = match.params;
@@ -15,12 +15,6 @@ const Contest = ({match}) => {
     const forceReload = () => {
         setReload(!reload);
     }
-
-    let unSubscribe = contestActs.store.subscribe(() => {
-        setContest(contestActs.getById(contestId));
-        setReload(!reload);
-        unSubscribe();
-    })
 
     const contestStart = new Date((contest && contest.start_time) || Date.now().toLocaleString());
     const contestEnd = new Date((contest && contest.end_time) || Date.now().toLocaleString());

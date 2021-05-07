@@ -31,9 +31,11 @@ export const basicReducers = (name) => {
 
         [`${name}sReceived`]: (state, action) => {
             const data = action.payload.results;
-            for (let i = 0; i < data.length; i++) {
-                state.dict[data[i].id] = data[i];
-                state.list.push(data[i].id)
+            if (data) {
+                for (let i = 0; i < data.length; i++) {
+                    state.dict[data[i].id] = data[i];
+                    state.list.push(data[i].id)
+                }
             }
             state.loading = false;
         },
