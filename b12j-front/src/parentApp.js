@@ -13,7 +13,6 @@ import WebSocketReceive from "./store/webSocketReceive";
 import App from "./app";
 
 import {SuperContext} from "./context";
-import Refresher from "./refresher";
 
 const ParentApp = () => {
   const data = generateData();
@@ -31,7 +30,7 @@ const ParentApp = () => {
     <SuperContext.Provider value={data}>
       <div>
         <WebSocketReceive/>
-        <Refresher />
+        <App />
       </div>
     </SuperContext.Provider>
   );

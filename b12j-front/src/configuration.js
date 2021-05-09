@@ -23,7 +23,7 @@ export const wssURL = () => {
     return protocol + document.location.host + "/ws";
 }
 
-export const projectURLS = {
+export const urls = {
     contests: '/contests',
     submissions: '/submissions',
     standing: '/contests/standing',
@@ -52,41 +52,41 @@ export const navBar = {
         ,
         {
             label: 'Chat',
-            link: projectURLS.chat,
+            link: urls.chat,
         },
         {
             label: 'Contests',
-            link: projectURLS.contests,
+            link: urls.contests,
             sub: [
                 {
                     label: 'Contest List',
-                    link: projectURLS.contests,
+                    link: urls.contests,
                 },
                 {
                     label: 'Submissions',
-                    link: projectURLS.submissions,
+                    link: urls.submissions,
                 },
                 {
                     label: 'Standing',
-                    link: projectURLS.standing,
+                    link: urls.standing,
                 },
             ]
         },
         {
             label: 'Tutorials',
-            link: projectURLS.tutorials,
+            link: urls.tutorials,
         },
         {
             label: 'Codeforces',
-            link: projectURLS.cf,
+            link: urls.cf,
             sub: [
                 {
                     label: 'Problems',
-                    link: projectURLS.cfProblems
+                    link: urls.cfProblems
                 },
                 {
                     label: 'Statics',
-                    link: projectURLS.cfStatics
+                    link: urls.cfStatics
                 }
             ]
         }
@@ -95,12 +95,12 @@ export const navBar = {
     menuRight: [
         {
             label: 'Login',
-            link: projectURLS.login,
+            link: urls.login,
             // class: css.navSuccessButton,
         },
         {
             label: 'Register',
-            link: projectURLS.register,
+            link: urls.register,
             // class: css.navSuccessButton,
         }
     ]

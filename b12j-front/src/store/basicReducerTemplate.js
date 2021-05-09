@@ -1,5 +1,5 @@
 import {apiCallBegan} from "./api";
-import {projectURLS} from "../configuration";
+import {urls} from "../configuration";
 import {getPageNumberFromLink} from "../apps/functions";
 
 export const standardInitialState = () => {
@@ -71,7 +71,7 @@ export const updatedWithPagination = (state, action) => {
     if (state.dict[action.payload.id]) state.dict[action.payload.id] = action.payload;
     else {
         state.dict[action.payload.id] = action.payload;
-        if(!state.list[1]) state.list[1] = []
+        if (!state.list[1]) state.list[1] = []
         state.list[1] = [action.payload.id, ...state.list[1]]
     }
     state.loading = false;
@@ -104,7 +104,7 @@ export class basicActions {
         })
     };
 
-    _load = (url = projectURLS[`${this.name}s`] + '/') => {
+    _load = (url = urls[`${this.name}s`] + '/') => {
         this.store.dispatch(apiCallBegan({
             url: url,
             onStart: this.requested.type,

@@ -40,7 +40,10 @@ export class userActions extends basicActions {
     };
 
     fullName = (id) => {
-        return this.getById(id, 'first_name') + ' ' + this.getById(id, 'last_name')
+        if (!this.getById(id, 'first_name') && !this.getById(id, 'last_name')) {
+            return this.getById(id, 'username');
+        }
+        return this.getById(id, 'first_name') + ' ' + this.getById(id, 'last_name');
     }
 
     currentUser = () => {
