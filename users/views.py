@@ -1,15 +1,20 @@
 import json
 import string
-from random import choices
+from random import choices, randint
 
+from django.core.serializers import serialize
 from django.db.models import Q
 from django.http import JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from b12j.settings import EMAIL_HOST_USER
-from users.models import User, UserToken
+from extra import jwt_writer
+from google_auth_helper import verify_token
+from .backends import is_valid_jwt_header
+from .models import User, UserToken
 
 
 def email_verification(user: User, host):
@@ -17,6 +22,15 @@ def email_verification(user: User, host):
     UserToken.objects.create(user=user, token=token)
     text = f'Please verify your email here. {host}/users/verify-email/{token}'
     user.email_user('Confirm Your email', text, EMAIL_HOST_USER)
+
+
+def serialize_user(user):
+    json_data = json.loads(serialize('json', [user]))[0]
+    user = json_data['fields']
+    user['id'] = json_data['pk']
+    user.pop('password', None)
+    jwt_str = jwt_writer(**user)
+    return jwt_str
 
 
 def create_user(request):
@@ -37,6 +51,31 @@ def create_user(request):
     return JsonResponse({'created': True}, status=201)
 
 
+def login_google_auth_response(payload: dict):
+    name = payload.get('name')
+    email = payload.get('email')
+    username = payload.get('user_id')
+    # Login users
+    if User.objects.filter(username=username):
+        return User.objects.get(username=username)
+    if User.objects.filter(email=email):
+        return User.objects.get(email=email)
+    # Register users
+    name_array = name.split(' ')
+    if len(name_array) > 2:
+        if len(name_array[0]) >= 4:
+            first_name = ' '.join(name_array[:2])
+            last_name = ' '.join(name_array[2:])
+        else:
+            first_name = name_array[0]
+            last_name = name_array[1:]
+    else:
+        first_name = name_array[0]
+        last_name = '' if len(name_array) < 2 else name_array[1]
+    return User.objects.create_user(username=username, email=email, password=str(randint(100000, 999999)),
+                                    first_name=first_name, last_name=last_name)
+
+
 def verify_email(request, token):
     token_obj = get_object_or_404(UserToken, token=token)
     token_obj.user.is_active = True
@@ -44,18 +83,43 @@ def verify_email(request, token):
     return JsonResponse({'verified': True})
 
 
-def login_user(request):
-    try:
-        client_data = json.loads(request.body)
-    except json.JSONDecodeError:
-        client_data = request.POST
+def login_user_local(request, client_data):
     username = client_data.get('username')
     email = client_data.get('email')
     try:
         user = User.objects.get(Q(username=username) | Q(email=email))
     except User.DoesNotExist:
-        return JsonResponse({'message': f'Wrong data, Username: {username}, Email: {email}'}, status=400)
+        return None
     if not user.check_password(client_data.get('password')):
-        return JsonResponse({'message': f'Wrong Password'}, status=400)
+        return None
     login(request, user)
-    return JsonResponse({'success': True}, status=200)
+    return user
+
+
+def login_user(request):
+    try:
+        client_data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"errors": "No data provided"}, status=400)
+    user = login_user_local(request, client_data)
+    if not user:
+        id_token = client_data.get('idToken')
+        payload = verify_token(id_token)
+        if payload is None:
+            return JsonResponse({"errors": "Couldn't login"}, status=400)
+        if not payload['email_verified']:
+            return JsonResponse({"errors": "Please verify email"})
+        user = login_google_auth_response(payload)
+    jwt_str = serialize_user(user)
+    return JsonResponse({"jwt": jwt_str})
+
+
+def login_check(request):
+    user = is_valid_jwt_header(request)
+    if user:
+        user.last_login = timezone.now()
+        user.save()
+        logged = True
+    else:
+        logged = False
+    return JsonResponse({"status": logged})

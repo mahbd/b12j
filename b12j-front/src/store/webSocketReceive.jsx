@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {SuperContext} from "../context";
+import {getJwt} from "../common/authService";
 
 const WebSocketReceive = () => {
     const {ws, contestActs, problemActs, submissionActs, userActs, tutorialActs} = useContext(SuperContext);
@@ -10,6 +11,7 @@ const WebSocketReceive = () => {
         if(data.target === 'submission') submission(submissionActs, data);
         if(data.target === 'user') user(userActs, data);
         if(data.target === 'tutorial') tutorial(tutorialActs, data);
+        if(data.target === 'login') ws.send(JSON.stringify({"token_id": getJwt() || "Blank"}));
     });
 
     return <span />

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {getJwt, logout} from "./common/authService";
 import httpService from "./common/httpService";
-import {apiEndpoint, wssURL} from "./configuration";
+import {endpoint, wssURL} from "./configuration";
 import storeFunc from "./store/configureStore";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import {contestActions} from "./store/data/contests";
@@ -17,10 +17,10 @@ import {SuperContext} from "./context";
 const ParentApp = () => {
   const data = generateData();
   useEffect(() => {
-    data.userActs.loadUsers();
     if (getJwt()) {
-      httpService.get(apiEndpoint + '/login_check/').then(({data}) => {
+      httpService.get(endpoint + '/users/login_check/').then(({data}) => {
         if (!data.status) {
+          console.log("Wrong credentials");
           logout();
         }
       })
@@ -40,8 +40,7 @@ export default ParentApp;
 
 const generateData = () => {
   const store = storeFunc();
-  const jwt = getJwt();
-  const ws = new ReconnectingWebSocket(`${wssURL()}/?jwt=${jwt || 'hello'}`, '', {
+  const ws = new ReconnectingWebSocket(`${wssURL()}/`, '', {
     maxReconnectionDelay: 60000,
     minReconnectionDelay: 500,
   });

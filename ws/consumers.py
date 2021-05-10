@@ -2,25 +2,30 @@ import json
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.contrib.auth.models import AnonymousUser
 from django.core.serializers import serialize
 
+from extra import validate_jwt
+from google_auth_helper import verify_token
 from judge.models import Contest
 # Submission, Problem, TestCase, Tutorial
 from users.models import User
+from users.views import login_google_auth_response
 from ws.models import ActiveChannels
 
 
+# noinspection PyAttributeOutsideInit
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_group_name = 'nice'
+        self.room_group_name = 'webSocket'
+        self.scope['user'] = AnonymousUser()
         # await add_new_channel(self.scope['users'], self.channel_name, self.room_group_name)
-
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-
         await self.accept()
+        # await self.send(text_data=json.dumps({'data': {'target': 'login'}}))
 
     async def disconnect(self, close_code):
         # Leave room group
@@ -33,6 +38,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
+        if text_data_json.get('id_token') and not self.scope['user'].is_authenticated:
+            self.user = await verify_user(text_data_json.get('id_token'))
+            print(self.user, "logged in successfully")
         if text_data_json.get('method'):
             message = await route_to_view(text_data_json)
             await self.send(text_data=json.dumps({'data': message}))
@@ -61,14 +69,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
 
-def get_group_name(cur_user):
-    if cur_user.is_authenticated:
-        group_name = ''
-        for m in cur_user.email:
-            if m.isalnum():
-                group_name += m
-        return group_name if len(group_name) > 0 else 'bad_email'
-    return 'unauthenticated'
+@database_sync_to_async
+def verify_user(id_token):
+    return validate_jwt(id_token) or AnonymousUser()
 
 
 @database_sync_to_async
@@ -120,7 +123,6 @@ def user(request):
 def contest(request):
     if request['method'] == 'GET':
         return get_model_data_from_id(Contest, request)
-
 
 # def problem(request, cur_user):
 #     if request['method'] == 'GET':

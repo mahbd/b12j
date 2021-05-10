@@ -13,6 +13,7 @@ cryptography==3.4.7
 daphne==3.0.2
 Django
 django-cors-headers==3.7.0
+django-heroku
 djangorestframework==3.12.4
 firebase-admin==5.0.0
 google-api-core==1.26.3

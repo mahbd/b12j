@@ -16,7 +16,7 @@ from api.permissions import IsPermittedEditContest, IsPermittedAddContest
 from api.serializers import ContestSer, UserSerializer
 # ProblemSerializer, ProblemCommentSerializer
 from extra import jwt_writer
-from fun import verify_token
+from google_auth_helper import verify_token
 from judge.models import Contest
 # , Problem, ProblemComment, Submission, TestCase, Tutorial, TutorialComment
 from users.backends import is_valid_jwt_header
@@ -144,72 +144,3 @@ class ContestViewSet(viewsets.ModelViewSet):
 #         return TestCase.objects.all()
 #
 #     serializer_class = TestCaseSerializer
-#
-#
-# def is_logged_in(request):
-#     user = is_valid_jwt_header(request)
-#     if user:
-#         user.last_login = timezone.now()
-#         user.save()
-#         logged = True
-#     else:
-#         logged = False
-#     return JsonResponse({"status": logged})
-#
-#
-# def verify_login(request):
-#     try:
-#         client_data = json.loads(request.body)
-#     except json.JSONDecodeError:
-#         return JsonResponse({"errors": "No data provided"}, status=400)
-#     if client_data.get('username'):
-#         try:
-#             find_user = Q(username=client_data.get('username')) | Q(email=client_data.get('username'))
-#             user = User.objects.get(find_user)
-#         except User.DoesNotExist:
-#             return JsonResponse({"errors": "Wrong username or email"}, status=400)
-#         password = client_data.get('password')
-#         if user.check_password(raw_password=password):
-#             jwt_str = serialize_user(user)
-#             return JsonResponse({"jwt": jwt_str})
-#         return JsonResponse({"errors": "Wrong password"}, status=400)
-#     else:
-#         id_token = client_data.get('idToken')
-#     payload = verify_token(id_token)
-#     if payload is None:
-#         return JsonResponse({"errors": "Couldn't login"}, status=400)
-#     if not payload['email_verified']:
-#         return JsonResponse({"errors": "Please verify email"})
-#     name = payload['name']
-#     picture = payload['picture']
-#     email = payload['email']
-#     username = payload['user_id']
-#     # Login users
-#     if User.objects.filter(username=username):
-#         user = User.objects.get(username=username)
-#     else:
-#         # Register users
-#         name_array = name.split(' ')
-#         if len(name_array) > 2:
-#             if len(name_array[0]) < 4:
-#                 first_name = ' '.join(name_array[:2])
-#                 last_name = ' '.join(name_array[2:])
-#             else:
-#                 first_name = name_array[0]
-#                 last_name = name_array[1:]
-#         else:
-#             first_name = name_array[0]
-#             last_name = '' if len(name_array) < 2 else name_array[1]
-#         user = User.objects.create_user(username=username, email=email, password=str(randint(100000, 999999)),
-#                                         first_name=first_name, last_name=last_name, picture=picture)
-#     jwt_str = serialize_user(user)
-#     return JsonResponse({"jwt": jwt_str})
-#
-#
-# def serialize_user(user):
-#     json_data = json.loads(serialize('json', [user]))[0]
-#     user = json_data['fields']
-#     user['id'] = json_data['pk']
-#     user.pop('password', None)
-#     jwt_str = jwt_writer(**user)
-#     return jwt_str

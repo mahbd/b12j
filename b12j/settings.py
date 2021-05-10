@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import django.db.models
+import django_heroku
 from corsheaders.defaults import default_headers
 
 from .settings_helper import link_to_json_file
@@ -148,3 +149,5 @@ CORS_ALLOW_HEADERS = list(default_headers) + [  #
 
 # Constants
 EMAIL_REGEX = r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
+
+django_heroku.settings(locals())

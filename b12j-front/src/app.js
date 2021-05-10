@@ -40,7 +40,7 @@ const App = () => {
                     {/*<Route path={projectURLS.problems} component={ProblemRoute}/>*/}
                     {/*<Route path={projectURLS.submissions} component={SubmissionRoute}/>*/}
                     {/*<Route path={projectURLS.tutorials} component={TutorialRoute}/>*/}
-                    {/*<Route path={projectURLS.user} component={UserRoute}/>*/}
+                    <Route path={urls.user} component={UserRoute}/>
                 </Switch>
             </div>
             <div className={"col-auto"}>

@@ -8,4 +8,4 @@ def verify_token(token):
     try:
         return auth.verify_id_token(token)
     except Exception as exception:
-        print(exception)
+        print(exception, token)

@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {firebaseLoginImplement, loginWithPassword} from "../../common/authService";
 import {SuperContext} from "../../context";
 
-const Login = ({history}) => {
+const Login = () => {
     const {userActs} = useContext(SuperContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -10,7 +10,7 @@ const Login = ({history}) => {
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.async = true;
-        script.innerText = firebaseLoginImplement(history);
+        script.innerText = firebaseLoginImplement();
         document.body.appendChild(script);
         return () => {
             document.body.removeChild(script);

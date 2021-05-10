@@ -6,16 +6,13 @@ export const css = {
     hideOnPhone: " d-none d-lg-block d-xl-block ",
     username: " nobr text-danger font-weight-bold ",
 };
-
-export const minRefreshTime = 60;
-export const jwtTokenKey = "token";
-
-const apiURL = () => {
-    if (document.domain === "localhost") return "http://127.0.0.1:8000/api";
-    else return document.location.protocol + "//" + document.location.host + "/api"
+const getEndpoint = () => {
+    if (document.domain === "localhost") return "http://127.0.0.1:8000";
+    else return document.location.protocol + "//" + document.location.host
 }
 
-export const apiEndpoint = apiURL();
+export const endpoint = getEndpoint();
+export const apiEndpoint = endpoint + "/api";
 
 export const wssURL = () => {
     const protocol = document.location.protocol === "https:" ? "wss://" : "ws://";

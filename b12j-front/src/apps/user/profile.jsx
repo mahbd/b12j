@@ -12,22 +12,22 @@ const Profile = () => {
     const [userContest, setUserContest] = useState([]);
     const [testProblem, setTestProblem] = useState([]);
 
-    useEffect(() => {
-        const apiCall = async () => {
-            problemActs.start(); // Start Load animation
-            const userProblemData = await http.get(`${apiEndpoint}/problems/user_problems/`);
-            const userSubmissionData = await http.get(`${apiEndpoint}/submissions/user_submissions/`);
-            const userContestData = await http.get(`${apiEndpoint}/contests/user_contests/`);
-            const testProblemData = await http.get(`${apiEndpoint}/problems/test_problems/`);
-            problemActs.failure(); // Stop Load animation
-            setUserProbList(userProblemData.data.results);
-            setUserSubmissionList(userSubmissionData.data.results);
-            setUserContest(userContestData.data.results);
-            setTestProblem(testProblemData.data.results);
-        }
-        apiCall();
-        // eslint-disable-next-line
-    }, [])
+    // useEffect(() => {
+    //     const apiCall = async () => {
+    //         problemActs.start(); // Start Load animation
+    //         const userProblemData = await http.get(`${apiEndpoint}/problems/user_problems/`);
+    //         const userSubmissionData = await http.get(`${apiEndpoint}/submissions/user_submissions/`);
+    //         const userContestData = await http.get(`${apiEndpoint}/contests/user_contests/`);
+    //         const testProblemData = await http.get(`${apiEndpoint}/problems/test_problems/`);
+    //         problemActs.failure(); // Stop Load animation
+    //         setUserProbList(userProblemData.data.results);
+    //         setUserSubmissionList(userSubmissionData.data.results);
+    //         setUserContest(userContestData.data.results);
+    //         setTestProblem(testProblemData.data.results);
+    //     }
+    //     apiCall();
+    //     // eslint-disable-next-line
+    // }, [])
     return (
         <div className="container pt-5">
             <button className="btn btn-danger" onClick={() => logout('/')}>Logout</button>

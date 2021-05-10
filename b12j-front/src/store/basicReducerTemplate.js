@@ -1,6 +1,7 @@
 import {apiCallBegan} from "./api";
 import {urls} from "../configuration";
 import {getPageNumberFromLink} from "../apps/functions";
+import {getJwt} from "../common/authService";
 
 export const standardInitialState = () => {
     return {
@@ -116,20 +117,20 @@ export class basicActions {
     _loadById = (id) => {
         if (this.requestedIdQueue.indexOf(id) === -1) {
             this.requestedIdQueue.push(id);
-            const toSend = {"method": "GET", "target": this.name, "id": id}
+            const toSend = {"method": "GET", "target": this.name, "id": id, 'id_token': getJwt()}
             this.ws.send(JSON.stringify(toSend));
             this.start();
         }
     };
 
     add = (data) => {
-        const toSend = {"method": "POST", "target": this.name, "data": data};
+        const toSend = {"method": "POST", "target": this.name, "data": data, 'id_token': getJwt()};
         this.ws.send(JSON.stringify(toSend));
         this.start();
     }
 
     edit = (data) => {
-        const toSend = {"method": "PUT", "target": this.name, "id": data.id, "data": data};
+        const toSend = {"method": "PUT", "target": this.name, "id": data.id, "data": data, 'id_token': getJwt()};
         this.ws.send(JSON.stringify(toSend));
         this.start();
     }
