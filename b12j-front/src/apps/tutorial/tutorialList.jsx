@@ -2,10 +2,9 @@ import React, {useContext, useState} from 'react';
 import {Link} from "react-router-dom";
 import {SuperContext} from "../../context";
 
-const TutorialList = ({match}) => {
-    const {contestId} = match.params;
+const TutorialList = () => {
     const {tutorialActs, userActs} = useContext(SuperContext);
-    const [tutorials] = useState(tutorialActs.getList(contestId));
+    const tutorials = tutorialActs.getList();
 
     return (
         <div className="container">

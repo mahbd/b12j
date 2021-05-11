@@ -1,18 +1,22 @@
 from django.contrib import admin
-from .models import Contest
+from .models import Contest, Problem, ContestProblem, Submission, Tutorial, TestCase
 
 
-# , Problem, ProblemComment, Submission, TestCase, TutorialTopic, Tutorial, TutorialComment
+@admin.register(ContestProblem)
+class ContestProblemAdmin(admin.ModelAdmin):
+    list_display = ['contest_id', 'problem_id', 'problem_char']
+
 
 @admin.register(Contest)
 class ContestAdmin(admin.ModelAdmin):
-    search_fields = ['title', 'hosts__first_name', 'hosts__last_name', 'group__name']
+    search_fields = ['title', 'hosts__first_name', 'hosts__last_name']
     list_display = ['title', 'start_time', 'end_time']
 
 
+@admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
     search_fields = ['title', 'contest__title', 'by__first_name', 'by__last_name', 'text']
-    list_display = ['title', 'date', 'group']
+    list_display = ['title', 'date']
 
 
 class ProblemCommentAdmin(admin.ModelAdmin):
@@ -20,14 +24,16 @@ class ProblemCommentAdmin(admin.ModelAdmin):
     list_display = ['text', 'date', 'by', 'problem']
 
 
+@admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ['problem__title', 'contest__title', 'by__first_name', 'by__last_name']
 
 
-# admin.site.register(Problem, ProblemAdmin)
-# admin.site.register(ProblemComment, ProblemCommentAdmin)
-# admin.site.register(Submission, SubmissionAdmin)
-# admin.site.register(TestCase)
-# admin.site.register(Tutorial)
-# admin.site.register(TutorialComment)
-# admin.site.register(TutorialTopic)
+@admin.register(TestCase)
+class TestCaseAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Tutorial)
+class TutorialAdmin(admin.ModelAdmin):
+    pass

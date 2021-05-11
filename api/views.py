@@ -1,31 +1,22 @@
-import json
 from datetime import datetime
-from random import randint
 
-from django.core.serializers import serialize
 from django.db.models import Q
-from django.http import JsonResponse
 from django.shortcuts import get_list_or_404
-from django.utils import timezone
-from rest_framework import permissions, viewsets, generics
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 
-# from api.serializers import SubmissionSerializer, TestCaseSerializer, TutorialSerializer, TutorialCommentSerializer
+# from api.serializers import, TutorialCommentSerializer
 from api.permissions import IsPermittedEditContest, IsPermittedAddContest
-from api.serializers import ContestSer, UserSerializer
-# ProblemSerializer, ProblemCommentSerializer
-from extra import jwt_writer
-from google_auth_helper import verify_token
-from judge.models import Contest
-# , Problem, ProblemComment, Submission, TestCase, Tutorial, TutorialComment
-from users.backends import is_valid_jwt_header
+from api.serializers import ContestSer, UserSer, ProblemSer, SubmissionSer, TutorialSer, TestCaseSerializer
+# , ProblemCommentSerializer
+from judge.models import Contest, Problem, Submission, Tutorial, TestCase
 from users.models import User
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserSer
 
 
 class ContestViewSet(viewsets.ModelViewSet):
@@ -33,9 +24,7 @@ class ContestViewSet(viewsets.ModelViewSet):
     @permission_classes([permissions.IsAuthenticated])
     def user_contests(self, request, *args):
         if request.user:
-            contests = Contest.objects.filter(hosts=request.user)
-            contests = serialize('json', contests)
-            contests = [ContestSer(contest).data for contest in json.loads(contests)]
+            contests = ContestSer(Contest.objects.filter(hosts=request.user), many=True).data
             return Response({"results": contests})
         return Response({"details": "User is not authenticated"}, status=301)
 
@@ -44,46 +33,57 @@ class ContestViewSet(viewsets.ModelViewSet):
     serializer_class = ContestSer
 
 
-# def serialize_problems(problems):
-#     problems = serialize('json', problems)
-#     problems = [{
-#         "id": problem['pk'], "contest": Contest.objects.get(id=problem['fields']['contest']).title,
-#         "title": problem['fields']['title']
-#     }
-#         for problem in json.loads(problems)]
-#     return problems
-#
-#
-# class ProblemViewSet(viewsets.ModelViewSet):
-#     def get_queryset(self):
-#         return Problem.objects.filter(contest_id=self.request.GET.get('contest_id'))
-#
-#     @action(detail=False)
-#     @permission_classes([permissions.IsAuthenticated])
-#     def user_problems(self, request, *args):
-#         if request.user:
-#             problems = Problem.objects.filter(by=request.user)
-#             problems = serialize_problems(problems)
-#             return Response({"results": problems})
-#         return Response({"details": "User is not authenticated"}, status=301)
-#
-#     @action(detail=False)
-#     @permission_classes([permissions.IsAuthenticated])
-#     def test_problems(self, request, *args):
-#         if request.user:
-#             query = Q(hosts=request.user) | Q(testers=request.user)
-#             contests = Contest.objects.filter(query, start_time__gt=datetime.now())
-#             problems = []
-#             for contest in contests:
-#                 for problem in contest.problem_set.all():
-#                     problems.append(problem)
-#             problems = serialize_problems(problems)
-#             return Response({"results": problems})
-#         return Response({"details": "User is not authenticated"}, status=301)
-#
-#     serializer_class = ProblemSerializer
-#
-#
+class ProblemViewSet(viewsets.ModelViewSet):
+    def get_queryset(self):
+        return Problem.objects.filter(hidden_till__lte=datetime.now())
+
+    @action(detail=False)
+    @permission_classes([permissions.IsAuthenticated])
+    def user_problems(self, request, *args):
+        if request.user:
+            problems = ProblemSer(Problem.objects.filter(by=request.user), many=True).data
+            return Response({"results": problems})
+        return Response({"details": "User is not authenticated"}, status=301)
+
+    @action(detail=False)
+    @permission_classes([permissions.IsAuthenticated])
+    def test_problems(self, request, *args):
+        q = Q(contest__hosts=request.user) | Q(contest__testers=request.user)
+        problems = ProblemSer(Problem.objects.filter(q, contest__start_time__gt=datetime.now()), many=True).data
+        return Response({"results": problems})
+
+    @action(detail=False)
+    @permission_classes([permissions.IsAuthenticated])
+    def solved_problems(self, request, *args):
+        problems = ProblemSer(Problem.objects.filter(submission__verdict='AC', submission__by=request.user),
+                              many=True).data
+        return Response({"results": problems})
+
+    serializer_class = ProblemSer
+
+
+class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSer
+
+    @action(detail=False)
+    @permission_classes([permissions.IsAuthenticated])
+    def user_submissions(self, request, *args):
+        submissions = SubmissionSer(Submission.objects.filter(by=request.user), many=True).data
+        return Response({"results": submissions})
+
+
+class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
+    def get_queryset(self):
+        if self.request.GET.get('contest_id'):
+            return get_list_or_404(Tutorial, contest_id=self.request.GET['contest_id'], hidden_till__lt=datetime.now())
+        if self.request.GET.get('problem_id'):
+            return get_list_or_404(Tutorial, problem_id=self.request.GET['problem_id'], hidden_till__lt=datetime.now())
+        return Tutorial.objects.filter(hidden_till__lt=datetime.now())
+
+    serializer_class = TutorialSer
+
+
 # class ProblemCommentViewSet(viewsets.ModelViewSet):
 #     def get_queryset(self):
 #         if self.request.GET.get('problem_id'):
@@ -94,37 +94,10 @@ class ContestViewSet(viewsets.ModelViewSet):
 #     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 #
 #
-# class SubmissionViewSet(viewsets.ModelViewSet):
-#     queryset = Submission.objects.exclude(time_code='BC')
-#     serializer_class = SubmissionSerializer
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#     @action(detail=False)
-#     def user_submissions(self, request, *args):
-#         if request.user:
-#             submissions = Submission.objects.filter(by=request.user)
-#             submissions = serialize('json', submissions)
-#             submissions = [{
-#                 "id": submission['pk'], "contest": Contest.objects.get(id=submission['fields']['contest']).title,
-#                 "problem": Problem.objects.get(id=submission['fields']['problem']).title,
-#                 "verdict": submission['fields']['verdict']
-#             }
-#                 for submission in json.loads(submissions)]
-#             return Response({"results": submissions})
-#         return Response({"details": "User is not authenticated"}, status=301)
-#
-#
 # class SubmissionCreate(generics.CreateAPIView):
 #     queryset = Submission.objects.exclude(time_code='BC')
 #     serializer_class = SubmissionSerializer
 #     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#
-# class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
-#     def get_queryset(self):
-#         return Tutorial.objects.filter(contest_id=self.request.GET.get('contest_id'))
-#
-#     serializer_class = TutorialSerializer
 #
 #
 # class TutorialCommentViewSet(viewsets.ModelViewSet):
@@ -135,12 +108,12 @@ class ContestViewSet(viewsets.ModelViewSet):
 #
 #     serializer_class = TutorialCommentSerializer
 #     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#
-# class TestCaseViewSet(viewsets.ModelViewSet):
-#     def get_queryset(self):
-#         if self.request.GET.get('problem_id'):
-#             return get_list_or_404(TestCase, problem_id=self.request.GET.get('problem_id'))
-#         return TestCase.objects.all()
-#
-#     serializer_class = TestCaseSerializer
+
+
+class TestCaseViewSet(viewsets.ModelViewSet):
+    def get_queryset(self):
+        if self.request.GET.get('problem_id'):
+            return get_list_or_404(TestCase, problem_id=self.request.GET.get('problem_id'))
+        return TestCase.objects.all()
+
+    serializer_class = TestCaseSerializer

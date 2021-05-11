@@ -11,6 +11,7 @@ const ProblemRoute = () => {
             <Route path="/problems/add/:contestId" component={ProblemForm} />
             <Route path="/problems/edit/:problemId" component={ProblemForm} />
             <Route path={'/problems/:problemId'} component={Problem}/>
+            <Route path={'/problems/'} component={ProblemList}/>
         </Switch>
     );
 };

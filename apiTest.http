@@ -1,0 +1,21 @@
+POST {{main}}/users/login/
+Content-Type: application/json
+
+{ "username" : "{{username}}", "password" : "{{password}}" }
+
+###
+### First
+GET {{main}}/api/submissions/user_submissions/
+x-auth-token: {{jwt}}
+
+
+### Login user
+POST {{main}}/users/login/
+Content-Type: application/json
+
+{
+  "username": {{username}},
+  "password": {{password}}
+}
+
+###

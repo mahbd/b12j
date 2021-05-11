@@ -1,27 +1,22 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext} from 'react';
 import {Link} from "react-router-dom";
 import {SuperContext} from "../../context";
 
 const SubmissionList = ({match}) => {
     const page = parseInt(match.params.page) || 1;
     const {submissionActs, userActs} = useContext(SuperContext);
-    const [submissionList, setSubmissionList] = useState(submissionActs.getList(page));
-
-    useEffect(() => {
-        setSubmissionList(submissionActs.getList(page));
-        // eslint-disable-next-line
-    }, [page])
+    const submissionList = submissionActs.getList(page);
 
     const pages = submissionActs.totalPages();
 
     return (
-        <div className="container">
+        <div className="container pt-2">
             <table className="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th>Problem</th>
-                    <th>Verdict</th>
-                    <th>By</th>
+                    <th className={"bg-dark rounded-3 text-white"}>Problem</th>
+                    <th className={"bg-dark rounded-3 text-white"}>Verdict</th>
+                    <th className={"bg-dark rounded-3 text-white"}>By</th>
                 </tr>
                 </thead>
                 <tbody>

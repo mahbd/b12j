@@ -1,15 +1,10 @@
-import json
 import os
-import threading
 from datetime import datetime
-
-import requests
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from judge.models import Contest
-# Problem, ProblemComment, Submission, TestCase, Tutorial, TutorialComment
+from judge.models import Contest, Problem, ContestProblem, Submission, Tutorial, TestCase
 from users.models import User
 
 judge_url = os.environ.get('JUDGE_URL', 'http://127.0.0.1:8001/')
@@ -31,17 +26,98 @@ def validate_start_end_contest(data):
         raise ValidationError('Shouldn\'t start before end')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name']
+        exclude = ['password']
+
+
+class ContestProblemSer(serializers.ModelSerializer):
+    class Meta:
+        model = ContestProblem
+        fields = '__all__'
 
 
 class ContestSer(serializers.ModelSerializer):
+    problems = serializers.SerializerMethodField()
+
     class Meta:
         model = Contest
         fields = '__all__'
         validators = [validate_start_end_contest]
+
+    # noinspection PyMethodMayBeStatic
+    def get_problems(self, contest):
+        return [ContestProblemSer(cp).data for cp in ContestProblem.objects.filter(contest=contest)]
+
+
+class ProblemSer(serializers.ModelSerializer):
+    test_cases = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Problem
+        fields = '__all__'
+        extra_kwargs = {
+            'corCode': {'write_only': True},
+            'checker': {'write_only': True},
+        }
+        read_only_fields = ['by']
+
+    # noinspection PyMethodMayBeStatic
+    def get_test_cases(self, problem):
+        test_cases = TestCase.objects.filter(problem=problem.id)
+        return [{"input": test_case.inputs, "output": test_case.output} for test_case in
+                test_cases[:problem.examples]]
+
+    def validate(self, attrs):
+        if self.instance:
+            pass
+        else:
+            attrs = add_user_in_serializer(self, attrs)
+        return attrs
+
+
+class SubmissionSer(serializers.ModelSerializer):
+    problem_title = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Submission
+        exclude = ('details',)
+        read_only_fields = ['verdict', 'contest', 'by']
+        extra_kwargs = {
+            'code': {'write_only': True},
+        }
+
+    # noinspection PyMethodMayBeStatic
+    def get_problem_title(self, submission):
+        return submission.problem.title
+
+    def validate(self, attrs):
+        if self.instance:
+            pass
+        else:
+            attrs = add_user_in_serializer(self, attrs)
+        return attrs
+
+
+class TutorialSer(serializers.ModelSerializer):
+    class Meta:
+        model = Tutorial
+        fields = '__all__'
+        read_only_fields = ['by']
+
+    def validate(self, attrs):
+        if self.instance:
+            pass
+        else:
+            attrs = add_user_in_serializer(self, attrs)
+        return attrs
+
+
+class TestCaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestCase
+        fields = '__all__'
 
 # def judge_connect(submission_id):
 #     """Send signal to judge to judge submission\nIf Fails it just print failure reason"""
@@ -95,80 +171,11 @@ class ContestSer(serializers.ModelSerializer):
 #             print(e)
 #     except Submission.DoesNotExist:
 #         pass
-#
-#
-# class SubmissionSerializer(serializers.ModelSerializer):
-#     problem_title = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = Submission
-#         exclude = ('details',)
-#         read_only_fields = ['verdict', 'contest', 'by', 'time_code']
-#         extra_kwargs = {
-#             'code': {'write_only': True},
-#         }
-#
-#     def create(self, validated_data):
-#         submission = Submission(by=self.context['request'].user,
-#                                 contest_id=validated_data['problem'].contest_id,
-#                                 **validated_data)
-#         contest = submission.contest
-#         if contest.start_time > datetime.now(tz=contest.start_time.tzinfo):
-#             submission.time_code = 'BC'
-#         elif contest.end_time < datetime.now(tz=contest.end_time.tzinfo):
-#             submission.time_code = 'AC'
-#         else:
-#             submission.time_code = 'DC'
-#         submission.save()
-#         thread = threading.Thread(target=judge_connect, args=[submission.id])
-#         thread.start()
-#         return submission
-#
-#     # noinspection PyMethodMayBeStatic
-#     def get_problem_title(self, submission):
-#         return submission.problem.title
-#
-#
-# class ProblemSerializer(serializers.ModelSerializer):
-#     test_cases = serializers.SerializerMethodField(read_only=True)
-#
-#     class Meta:
-#         model = Problem
-#         fields = '__all__'
-#         extra_kwargs = {'corCode': {'write_only': True}}
-#         read_only_fields = ['by']
-#
-#     # noinspection PyMethodMayBeStatic
-#     def get_test_cases(self, problem):
-#         test_cases = TestCase.objects.filter(problem=problem.id)
-#         return [{"input": test_case.inputs, "output": test_case.output} for test_case in
-#                 test_cases[:problem.examples]]
-#
-#     def validate(self, attrs):
-#         if self.instance:
-#             pass
-#         else:
-#             attrs = add_user_in_serializer(self, attrs)
-#         return attrs
-#
-#
+
+
 # class ProblemCommentSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = ProblemComment
-#         fields = '__all__'
-#         read_only_fields = ['by']
-#
-#     def validate(self, attrs):
-#         if self.instance:
-#             pass
-#         else:
-#             attrs = add_user_in_serializer(self, attrs)
-#         return attrs
-#
-#
-# class TutorialSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Tutorial
 #         fields = '__all__'
 #         read_only_fields = ['by']
 #
@@ -192,12 +199,6 @@ class ContestSer(serializers.ModelSerializer):
 #         else:
 #             attrs = add_user_in_serializer(self, attrs)
 #         return attrs
-#
-#
-# class TestCaseSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TestCase
-#         fields = '__all__'
 #
 #
 # class IsOwnerOrReadOnly(permissions.BasePermission):

@@ -6,59 +6,59 @@ import {getCurrentUser} from "../../common/authService";
 import {SuperContext} from "../../context";
 
 const Problem = ({match, history}) => {
-    const {problemActs, userActs} = useContext(SuperContext);
-    const {problemId} = match.params;
-    const [problem, setProblem] = useState(problemActs.getById(problemId));
+  const {problemActs, userActs} = useContext(SuperContext);
+  const {problemId} = match.params;
+  const problem = problemActs.getById(problemId);
 
-    const currentUser = getCurrentUser() && getCurrentUser().id;
-    const is_admin = getCurrentUser() && getCurrentUser().is_superuser;
+  const currentUser = getCurrentUser() && getCurrentUser().id;
+  const is_admin = currentUser && getCurrentUser().is_superuser;
 
-    useEffect(() => {
-        setProblem(problemActs.getById(problemId));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [problemId]);
-
-    return (
-        problem && <div className="container">
-            {(currentUser === problem.by || is_admin) &&
-            <Link to={`/problems/edit/${problem.id}`}>
-                <button className="btn-lg btn-success">Edit</button>
-            </Link>}
-            <div className="bgDarkBlue">
-                <h1>{problem.title}</h1>
-                <h3>By <span className="user">{userActs.fullName(problem.by)}</span></h3>
-            </div>
-            <div className="bgAliceBlue">
-                <div className="alert alert-info">{problem.notice}</div>
-                <h4>Problem statement</h4>
-                <FormattedHtml text={problem.text}/> <br/>
-                <h4>Input Terms</h4>
-                <FormattedHtml text={problem.inTerms}/> <br/>
-                <h4>Output Terms</h4>
-                <FormattedHtml text={problem.outTerms}/> <br/>
-            </div>
-            <table className="table table-bordered">
-                <thead>
-                <tr>
-                    <th>Input</th>
-                    <th>Output</th>
-                </tr>
-                </thead>
-                <tbody>
-                {problem.test_cases.map(test => <tr key={Math.floor(Math.random() * 1000)}>
-                    <td>
-                        <pre>{test.input}</pre>
-                    </td>
-                    <td>
-                        <pre>{test.output}</pre>
-                    </td>
-                </tr>)}
-                </tbody>
-            </table>
-            <ProblemCode problem={problem} history={history}/>
-            <br/><br/>
-        </div>
-    );
+  return (
+    problem && <div className="container">
+      {/*{(currentUser === problem.by || is_admin) &&*/}
+      {/*<Link to={`/problems/edit/${problem.id}`}>*/}
+      {/*    <button className="btn-lg btn-success">Edit</button>*/}
+      {/*</Link>}*/}
+      <div className="row pt-2 pb-5">
+        <div className="col"><Link to={"/problems"} className={"white-link"}>Back</Link></div>
+        <h1 className={"col-auto h1 text-secondary rounded-3"}>{problem.title}</h1>
+        <div className="col"><p className={"text-end"}>Submit</p></div>
+        <p className={"text-center"}>Writer: {userActs.fullName(problem.by)} <br/>
+          Time Limit: {problem.memory_limit} MB <br/>
+          Memory Limit: {problem.time_limit} seconds <br/>
+        </p>
+      </div>
+      <div>
+        {problem.notice && <div className="alert alert-info">{problem.notice}</div>}
+        <b className={"h5"}>Problem statement</b>
+        <FormattedHtml text={problem.text}/> <br/>
+        <b className={"h5"}>Input Terms</b>
+        <FormattedHtml text={problem.inTerms}/> <br/>
+        <b className={"h5"}>Output Terms</b>
+        <FormattedHtml text={problem.outTerms}/> <br/>
+      </div>
+      <table className="table table-bordered table-striped">
+        <thead>
+        <tr>
+          <th>Input</th>
+          <th>Output</th>
+        </tr>
+        </thead>
+        <tbody>
+        {problem.test_cases.map(test => <tr key={Math.floor(Math.random() * 1000)}>
+          <td>
+            <pre>{test.input}</pre>
+          </td>
+          <td>
+            <pre>{test.output}</pre>
+          </td>
+        </tr>)}
+        </tbody>
+      </table>
+      {/*<ProblemCode problem={problem} history={history}/>*/}
+      <br/><br/>
+    </div>
+  );
 }
 
 export default Problem;

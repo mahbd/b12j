@@ -9,6 +9,7 @@ const TutorialRoute = () => {
             <Switch>
                 <Route path="/tutorials/contestId=:contestId" component={TutorialList}/>
                 <Route path="/tutorials/:tutorialId" component={Tutorial}/>
+                <Route path="/tutorials" component={TutorialList}/>
             </Switch>
         </div>
     );

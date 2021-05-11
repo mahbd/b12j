@@ -5,7 +5,6 @@ from users.models import User
 
 
 class ActiveChannels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    room_name = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     channel_name = models.TextField()
     time = models.DateTimeField(default=timezone.now)

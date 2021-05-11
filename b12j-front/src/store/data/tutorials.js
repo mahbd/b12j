@@ -1,4 +1,10 @@
-import {basicActions, basicReducers, standardInitialState} from "../basicReducerTemplate";
+import {
+    basicActions,
+    basicReducers,
+    receivedWithPagination,
+    standardInitialState,
+    updatedWithPagination
+} from "../basicReducerTemplate";
 import {createSlice} from "@reduxjs/toolkit";
 
 const name = 'tutorial';
@@ -10,19 +16,12 @@ const slice = createSlice({
     },
     reducers: {
         ...basicReducers(name),
-        tutorialsReceived: (state, action) => {
-            const data = action.payload.results;
-            if (data.length < 1) console.log("No tutorials for this contest");
-            else {
-                let contestId = data[0].contest;
-                state.loading = false;
-                state.fetched.push(contestId)
-                for (let i = 0; i < data.length; i++) {
-                    state.dict[data[i].id] = data[i];
-                }
-            }
-
+         [`${name}sReceived`]: (state, action) => {
+            receivedWithPagination(state, action);
         },
+        [`${name}problemUpdated`]: (state, action) => {
+            updatedWithPagination(state, action);
+        }
     }
 });
 
@@ -33,21 +32,22 @@ export class tutorialActions extends basicActions {
         super(slice, store, ws, name);
     }
 
-    _loadTutorials = (contestId) => {
+    _loadTutorials = (page) => {
         const tutorials = this.store.getState().tutorials;
-        if(tutorials.fetched.indexOf(contestId) !== -1 || tutorials.loading) return ;
-        this._load(`/tutorials/?contest_id=${contestId}`);
+        if (tutorials.fetched.indexOf(page) !== -1 || tutorials.loading) return;
+        if (page < 1 || (tutorials.total && page > tutorials.total)) {
+            alert("Wrong page");
+            return;
+        }
+        this._load(`/tutorials/?limit=20&offset=${(page - 1) * 20}`);
     };
 
-    getList = (contestId) => {
-        this._loadTutorials(contestId);
-        let list = [];
-        const dict = this.store.getState().tutorials.dict;
-        for(let dictKey in dict) {
-            if(dict[dictKey].contest === contestId) {
-                list.push(dict[dictKey]);
-            }
-        }
-        return list;
+    getList = (page=1) => {
+        this._loadTutorials(page);
+        return this.list(this.store.getState().tutorials.list[page]);
+    }
+
+    totalPages = () => {
+        return this.store.getState()[this.name + 's'].total;
     }
 }

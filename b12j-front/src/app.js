@@ -34,12 +34,12 @@ const App = () => {
                 <LeftSideBar/>
             </div>
             <div className={"col"}>
-              <h1>Currently being redesigned. All services are stopped.</h1>
+              {/*<h1>Currently being redesigned. All services are stopped.</h1>*/}
                 <Switch>
                     <Route path={urls.contests} component={ContestRoute}/>
-                    {/*<Route path={projectURLS.problems} component={ProblemRoute}/>*/}
-                    {/*<Route path={projectURLS.submissions} component={SubmissionRoute}/>*/}
-                    {/*<Route path={projectURLS.tutorials} component={TutorialRoute}/>*/}
+                    <Route path={urls.problems} component={ProblemRoute}/>
+                    <Route path={urls.submissions} component={SubmissionRoute}/>
+                    <Route path={urls.tutorials} component={TutorialRoute}/>
                     <Route path={urls.user} component={UserRoute}/>
                 </Switch>
             </div>

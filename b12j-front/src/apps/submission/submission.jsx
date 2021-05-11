@@ -5,8 +5,8 @@ import {SuperContext} from "../../context";
 const Submission = ({match}) => {
     const {submissionId} = match.params;
     const {submissionActs, userActs, contestActs, problemActs} = useContext(SuperContext);
-    const [submission] = useState(submissionActs.getById(submissionId));
-    const [contest] = useState(contestActs.getById(submission && submission.contest))
+    const submission = submissionActs.getById(submissionId);
+    const contest = contestActs.getById(submission && submission.contest);
 
     const contestEnd = new Date((contest && contest.end_time) || Date.now().toLocaleString());
     const currentUser = getCurrentUser() && getCurrentUser().id;

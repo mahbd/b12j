@@ -22,7 +22,13 @@ const NavBar = () => {
                         <NavLink className="nav-link" to="/contests">Contests</NavLink>
                     </li>
                     <li className="nav-item">
+                        <NavLink className="nav-link" to="/problems">Problems</NavLink>
+                    </li>
+                    <li className="nav-item">
                         <NavLink className="nav-link" to="/submissions">Submission</NavLink>
+                    </li>
+                    <li className="nav-item">
+                        <NavLink className="nav-link" to="/tutorials">Tutorials</NavLink>
                     </li>
                     <li className="nav-item">
                         {!user && <NavLink to="/users/login" className="nav-link">Login</NavLink>}
