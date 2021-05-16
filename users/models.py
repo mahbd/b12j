@@ -1,7 +1,10 @@
+from datetime import timedelta, datetime
+
 from django.apps.registry import apps
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+from django.utils import timezone
 
 from b12j.settings import EMAIL_HOST_USER
 
@@ -20,13 +23,14 @@ class UserManagerCustom(UserManager):
         username = GlobalUserModel.normalize_username(username)
         user = self.model(username=username, email=email, **extra_fields)
         user.password = make_password(password)
-        user.is_active = False
+        # user.is_active = False
         user.save(using=self._db)
         # Verify Email
-        token = self.make_random_password(6, '123467890')
-        UserToken.objects.create(user=user, token=token)
-        text = f'Please verify your email. Your token is: {token}'
-        user.email_user('Confirm Your email', text, EMAIL_HOST_USER)
+        # token = self.make_random_password(6, '123467890')
+        # UserToken.objects.create(user=user, token=token)
+        # text = f'Please verify your email. Your token is: {token}'
+        # user.email_user('Confirm Your email', text, EMAIL_HOST_USER)
+
         return user
 
     def create_user(self, username, email=None, password=None, **extra_fields):
@@ -44,6 +48,11 @@ class User(AbstractUser):
     objects = UserManagerCustom()
 
 
+def expire_date():
+    return datetime.now() + timedelta(days=1)
+
+
 class UserToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     token = models.CharField(max_length=20)
+    expire = models.DateTimeField(default=expire_date)

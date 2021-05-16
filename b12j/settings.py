@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'ws',
     'judge',
     'api',
-    # 'attendance',
 ]
 
 MIDDLEWARE = [

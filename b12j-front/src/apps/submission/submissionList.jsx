@@ -24,7 +24,7 @@ const SubmissionList = ({match}) => {
                 {submissionList.map((submission) => <tr key={submission.id}>
                     <td><Link to={`/submissions/${submission.id}`}>{submission.id}</Link></td>
                     <td>{userActs.fullName(submission.by)}</td>
-                    <td><Link to={`/problems/${submission.problem}`}>{submission.problem_title}</Link></td>
+                    <td>{submission.problem_title}</td>
                     <td>{submission.verdict}</td></tr>)}
                 </tbody>
             </table>

@@ -5,7 +5,7 @@ import {Link} from "react-router-dom";
 import {getCurrentUser} from "../../common/authService";
 import {SuperContext} from "../../context";
 
-const Problem = ({match, history}) => {
+const Problem = ({match}) => {
   const {problemActs, userActs} = useContext(SuperContext);
   const {problemId} = match.params;
   const problem = problemActs.getById(problemId);
@@ -25,7 +25,7 @@ const Problem = ({match, history}) => {
         <div className="col"><p className={"text-end"}>Submit</p></div>
         <p className={"text-center"}>Writer: {userActs.fullName(problem.by)} <br/>
           Time Limit: {problem.memory_limit} MB <br/>
-          Memory Limit: {problem.time_limit} seconds <br/>
+          Memory Limit: {problem.time_limit} second(s) <br/>
         </p>
       </div>
       <div>
@@ -55,7 +55,7 @@ const Problem = ({match, history}) => {
         </tr>)}
         </tbody>
       </table>
-      {/*<ProblemCode problem={problem} history={history}/>*/}
+      <ProblemCode problem={problem} />
       <br/><br/>
     </div>
   );

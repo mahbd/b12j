@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ActiveChannels
+from .models import ActiveChannel
 
 
-admin.site.register(ActiveChannels)
+admin.site.register(ActiveChannel)

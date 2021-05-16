@@ -1,11 +1,10 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import ProblemList from "../problem/problemList";
 import Countdown from "react-countdown";
 import TutorialList from "../tutorial/tutorialList";
 import {Link} from "react-router-dom";
 import {FormattedHtml} from "../../common/objectViewFuncs";
 import {SuperContext} from "../../context";
-import {css} from "../../main_css";
 
 const Contest = ({match}) => {
   const {contestId} = match.params;
@@ -18,7 +17,7 @@ const Contest = ({match}) => {
   return (
     <div className="container">
       {contest && <div>
-        <div className={"pt-3"}>
+        <div className={"pt-2"}>
           <div className={"row"}>
             <div className="col"/>
             <div className="display-4 bg-secondary text-white col-auto rounded-3">{contest.title}</div>
@@ -26,24 +25,24 @@ const Contest = ({match}) => {
           </div>
           <br/>
           <div className="row">
-            <div className="col-auto">
+            <div className="col-auto p-2">
               <button className="btn btn-dark">Problems</button>
             </div>
-            <div className="col-auto">
+            <div className="col-auto p-2">
               <button className="btn btn-dark">Announcements</button>
             </div>
-            <div className="col-auto">
+            <div className="col-auto p-2">
               <Link to={`/contests/standing/${contestId}`}>
                 <button className="btn btn-dark">Standing</button>
               </Link>
             </div>
-            <div className="col-auto">
+            <div className="col-auto p-2">
               <button className="btn btn-dark">Tutorials</button>
             </div>
-            <div className="col-auto">
+            <div className="col-auto p-2">
               <button className="btn btn-dark">Submissions</button>
             </div>
-            <div className="col-auto">
+            <div className="col-auto p-2">
               <button className="btn btn-dark">Your Submissions</button>
             </div>
           </div>
@@ -56,7 +55,7 @@ const Contest = ({match}) => {
 
         <div>
           <div className="row">
-            <div className={"col-auto " + css.heading4}>About contest</div>
+            <h2>About contest</h2>
             <div className="col"/>
           </div>
           <div>

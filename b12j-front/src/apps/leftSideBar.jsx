@@ -5,7 +5,8 @@ import {Link} from "react-router-dom";
 import {urls} from "../configuration";
 
 const LeftSideBar = () => {
-    const {contestActs} = useContext(SuperContext);
+    const {contestActs, tutorialActs} = useContext(SuperContext);
+    const tutorials = tutorialActs.getList();
     const contestList = contestActs.getList();
     return (
         <div>
@@ -26,21 +27,10 @@ const LeftSideBar = () => {
                 <div className={css.heading4}>Latest Tutorials</div>
                 <table className={css.tableSingle}>
                     <tbody>
-                    <tr>
-                        <td><a className={"white-link"} href="#">First</a></td>
-                    </tr>
-                    <tr>
-                        <td><a className={"white-link"} href="#">First</a></td>
-                    </tr>
-                    <tr>
-                        <td><a className={"white-link"} href="#">First</a></td>
-                    </tr>
-                    <tr>
-                        <td><a className={"white-link"} href="#">First</a></td>
-                    </tr>
-                    <tr>
-                        <td><a className={"white-link"} href="#">First</a></td>
-                    </tr>
+                    {tutorials.map(tutorial =>
+                    <tr key={tutorial.id}>
+                        <td><Link className={"white-link"} to={`/tutorials/${tutorial.id}`}>{tutorial.title}</Link></td>
+                    </tr>)}
                     </tbody>
                 </table>
             </div>

@@ -8,7 +8,7 @@ from api.serializers import UserSer, ContestSer, ProblemSer, SubmissionSer, Tuto
 from extra import validate_jwt
 from judge.models import Contest, Problem, Submission, Tutorial
 from users.models import User
-from ws.models import ActiveChannels
+from ws.models import ActiveChannel
 
 
 # noinspection PyAttributeOutsideInit
@@ -73,14 +73,14 @@ def verify_user(id_token) -> User:
 
 
 @database_sync_to_async
-def add_new_channel(cur_user, channel) -> ActiveChannels:
+def add_new_channel(cur_user, channel) -> ActiveChannel:
     if cur_user.is_authenticated:
-        return ActiveChannels.objects.create(user=cur_user, channel_name=channel)
-    return ActiveChannels.objects.create(channel_name=channel)
+        return ActiveChannel.objects.create(user=cur_user, channel_name=channel)
+    return ActiveChannel.objects.create(channel_name=channel)
 
 
 @database_sync_to_async
-def update_user(ac_channel: ActiveChannels, cur_user):
+def update_user(ac_channel: ActiveChannel, cur_user):
     ac_channel.user = cur_user
     ac_channel.save()
     return ac_channel
@@ -88,8 +88,8 @@ def update_user(ac_channel: ActiveChannels, cur_user):
 
 @database_sync_to_async
 def remove_channel(channel):
-    if ActiveChannels.objects.filter(channel_name=channel):
-        ActiveChannels.objects.filter(channel_name=channel).delete()
+    if ActiveChannel.objects.filter(channel_name=channel):
+        ActiveChannel.objects.filter(channel_name=channel).delete()
 
 
 @database_sync_to_async
