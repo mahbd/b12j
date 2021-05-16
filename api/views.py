@@ -15,6 +15,7 @@ from users.models import User
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    lookup_field = "username"
     queryset = User.objects.all()
     serializer_class = UserSer
 
