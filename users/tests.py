@@ -6,9 +6,13 @@ c = Client()
 csrf_c = Client(enforce_csrf_checks=True)
 
 
+def create_user(username, email, password):
+    return User.objects.create_user(username=username, email=email, password=password)
+
+
 class UserTestCase(TestCase):
     def setUp(self) -> None:
-        User.objects.create_user(username='mah_with_email', password='12345678', email='mahmuduly2000@gmail.com')
+        create_user(username='mah_with_email', password='12345678', email='mahmuduly2000@gmail.com')
 
     # Login
     def test_loginWithEmail(self):

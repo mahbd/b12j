@@ -1,10 +1,6 @@
 from django.contrib import admin
-from .models import Contest, Problem, ContestProblem, Submission, Tutorial, TestCase
-
-
-@admin.register(ContestProblem)
-class ContestProblemAdmin(admin.ModelAdmin):
-    list_display = ['contest_id', 'problem_id', 'problem_char']
+from .models import Contest, ContestProblem, Problem, ProblemDiscussion, Submission, TestCase, Tutorial, \
+    TutorialDiscussion
 
 
 @admin.register(Contest)
@@ -13,13 +9,19 @@ class ContestAdmin(admin.ModelAdmin):
     list_display = ['title', 'start_time', 'end_time']
 
 
+@admin.register(ContestProblem)
+class ContestProblemAdmin(admin.ModelAdmin):
+    list_display = ['contest_id', 'problem_id', 'problem_char']
+
+
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
     search_fields = ['title', 'contest__title', 'by__first_name', 'by__last_name', 'text']
     list_display = ['title', 'date']
 
 
-class ProblemCommentAdmin(admin.ModelAdmin):
+@admin.register(ProblemDiscussion)
+class ProblemDiscussionAdmin(admin.ModelAdmin):
     search_fields = ['by__first_name', 'by__last_name', 'problem_title']
     list_display = ['text', 'date', 'by', 'problem']
 
@@ -36,4 +38,9 @@ class TestCaseAdmin(admin.ModelAdmin):
 
 @admin.register(Tutorial)
 class TutorialAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(TutorialDiscussion)
+class TutorialDiscussionAdmin(admin.ModelAdmin):
     pass

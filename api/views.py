@@ -7,10 +7,10 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 
 # from api.serializers import, TutorialCommentSerializer
-from api.permissions import IsPermittedEditContest, IsPermittedAddContest
-from api.serializers import ContestSer, UserSer, ProblemSer, SubmissionSer, TutorialSer, TestCaseSerializer
-# , ProblemCommentSerializer
-from judge.models import Contest, Problem, Submission, Tutorial, TestCase
+from api.permissions import IsPermittedEditContest, IsPermittedAddContest, IsPermittedDeleteDiscussion
+from api.serializers import ContestSer, ProblemSer, ProblemDiscussionSer, SubmissionSer, TestCaseSer, UserSer, \
+    TutorialSer, TutorialDiscussionSer
+from judge.models import Contest, Problem, Submission, Tutorial, TestCase, ProblemDiscussion, TutorialDiscussion
 from users.models import User
 
 
@@ -63,6 +63,13 @@ class ProblemViewSet(viewsets.ModelViewSet):
     serializer_class = ProblemSer
 
 
+class ProblemDiscussionViewSet(viewsets.ModelViewSet):
+    def get_queryset(self):
+        return ProblemDiscussion.objects.filter(problem_id=self.kwargs.get('problem_id'))
+    serializer_class = ProblemDiscussionSer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPermittedDeleteDiscussion]
+
+
 class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSer
@@ -85,30 +92,11 @@ class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TutorialSer
 
 
-# class ProblemCommentViewSet(viewsets.ModelViewSet):
-#     def get_queryset(self):
-#         if self.request.GET.get('problem_id'):
-#             return get_list_or_404(ProblemComment, problem_id=self.request.GET.get('problem_id'))
-#         return ProblemComment.objects.all()
-#
-#     serializer_class = ProblemCommentSerializer
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#
-# class SubmissionCreate(generics.CreateAPIView):
-#     queryset = Submission.objects.exclude(time_code='BC')
-#     serializer_class = SubmissionSerializer
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#
-# class TutorialCommentViewSet(viewsets.ModelViewSet):
-#     def get_queryset(self):
-#         if self.request.GET.get('tutorial_id'):
-#             return get_list_or_404(TutorialComment, tutorial_id=self.request.GET.get('tutorial_id'))
-#         return TutorialComment.objects.all()
-#
-#     serializer_class = TutorialCommentSerializer
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class TutorialDiscussionViewSet(viewsets.ModelViewSet):
+    def get_queryset(self):
+        return TutorialDiscussion.objects.filter(tutorial_id=self.kwargs.get('tutorial_id'))
+    serializer_class = ProblemDiscussionSer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPermittedDeleteDiscussion]
 
 
 class TestCaseViewSet(viewsets.ModelViewSet):
@@ -117,4 +105,4 @@ class TestCaseViewSet(viewsets.ModelViewSet):
             return get_list_or_404(TestCase, problem_id=self.request.GET.get('problem_id'))
         return TestCase.objects.all()
 
-    serializer_class = TestCaseSerializer
+    serializer_class = TestCaseSer

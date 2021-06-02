@@ -43,7 +43,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json.pop('id_token')
             message = await route_to_view(text_data_json)
             await self.send(text_data=json.dumps({'data': message}))
-        else:
+        elif text_data_json.get('data'):
             message = text_data_json['data']
             # Send message to room group
             print(message)
@@ -54,6 +54,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'data': message
                 }
             )
+        elif text_data_json.get('logout'):
+            self.scope['user'] = AnonymousUser()
 
     # Receive message from room group
     async def send_data(self, event):

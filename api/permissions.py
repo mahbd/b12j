@@ -13,6 +13,15 @@ class IsPermittedEditContest(permissions.BasePermission):
         return False
 
 
+class IsPermittedDeleteDiscussion(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'DELETE':
+            if request.user.id == obj.by.id:
+                return True
+            return False
+        return True
+
+
 class IsPermittedAddContest(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in [*permissions.SAFE_METHODS, 'PUT', 'DELETE'] or request.user.is_staff:

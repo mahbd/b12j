@@ -4,7 +4,8 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from judge.models import Contest, Problem, ContestProblem, Submission, Tutorial, TestCase
+from judge.models import Contest, Problem, ContestProblem, Submission, Tutorial, TestCase, ProblemDiscussion, \
+    TutorialDiscussion
 from users.models import User
 
 judge_url = os.environ.get('JUDGE_URL', 'http://127.0.0.1:8001/')
@@ -77,6 +78,14 @@ class ProblemSer(serializers.ModelSerializer):
         return attrs
 
 
+class ProblemDiscussionSer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = ProblemDiscussion
+        fields = '__all__'
+
+
 class SubmissionSer(serializers.ModelSerializer):
     problem_title = serializers.SerializerMethodField()
 
@@ -114,7 +123,15 @@ class TutorialSer(serializers.ModelSerializer):
         return attrs
 
 
-class TestCaseSerializer(serializers.ModelSerializer):
+class TutorialDiscussionSer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = TutorialDiscussion
+        fields = '__all__'
+
+
+class TestCaseSer(serializers.ModelSerializer):
     class Meta:
         model = TestCase
         fields = '__all__'

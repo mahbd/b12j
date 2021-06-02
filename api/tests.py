@@ -13,7 +13,7 @@ def login(user: User):
     c.force_login(user, settings.AUTHENTICATION_BACKENDS[0])
 
 
-class ContestTestCase(TestCase):
+class ContestViewTestCase(TestCase):
     def setUp(self) -> None:
         self.api = '/api/contests/'
         self.user = User.objects.create_user(username='mah', email='mahmudula2000@gmail.com', password='1234')
@@ -102,3 +102,7 @@ class ContestTestCase(TestCase):
         contests = response.json()
         self.assertEqual(response.status_code, 200, 'Failed to read')
         self.assertEqual(contests.get('count', -1), 1, 'Must be 1 at initial position')
+
+
+class TutorialViewTestCase(TestCase):
+    pass

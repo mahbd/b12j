@@ -67,15 +67,22 @@ class Problem(models.Model):
         return self.title
 
 
-# class ProblemComment(models.Model):
-#     parent = models.ForeignKey('ProblemComment', on_delete=models.CASCADE, blank=True, null=True)
-#     by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-#     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-#     text = models.TextField()
-#     date = models.DateTimeField(auto_now_add=True)
-#
-#     class Meta:
-#         ordering = ['-date']
+class ProblemDiscussion(models.Model):
+    by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    parent = models.ForeignKey('ProblemDiscussion', blank=True, null=True, on_delete=models.CASCADE)
+    text = models.TextField()
+    date = models.DateTimeField(default=timezone.now)
+
+
+class TestCase(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    inputs = models.TextField()
+    output = models.TextField()
+    date = models.DateTimeField(default=timezone.now, editable=False)
+
+    def __str__(self):
+        return f'problem: {self.problem.title} input: {self.inputs[:10]}'
 
 
 class Submission(models.Model):
@@ -85,7 +92,7 @@ class Submission(models.Model):
     code = models.TextField()
     language = models.CharField(max_length=10, choices=(('python', 'Python3'), ('c_cpp', 'C/C++')))
     verdict = models.CharField(max_length=5, default='PJ')
-    details = models.TextField(blank=True, null=True)
+    wrong_tc = models.ForeignKey(TestCase, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
@@ -112,25 +119,13 @@ class Tutorial(models.Model):
         return self.title
 
 
-class TestCase(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    inputs = models.TextField()
-    output = models.TextField()
-    date = models.DateTimeField(default=timezone.now, editable=False)
-
-    def __str__(self):
-        return f'problem: {self.problem.title} input: {self.inputs[:10]}'
+class TutorialDiscussion(models.Model):
+    by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    tutorial = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    parent = models.ForeignKey('TutorialDiscussion', blank=True, null=True, on_delete=models.CASCADE)
+    text = models.TextField()
+    date = models.DateTimeField(default=timezone.now)
 
 
-# class TutorialComment(models.Model):
-#     parent = models.ForeignKey('TutorialComment', on_delete=models.CASCADE, blank=True, null=True)
-#     tutorial = models.ForeignKey(Tutorial, on_delete=models.CASCADE)
-#     by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-#     text = models.TextField()
-#     date = models.DateTimeField(auto_now_add=True)
-#
-#     class Meta:
-#         ordering = ['date']
-#
-#     def __str__(self):
-#         return f'{self.tutorial.title} cmt: {self.text[:10]}'
+class JudgeQueue(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)

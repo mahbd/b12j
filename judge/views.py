@@ -5,6 +5,8 @@ import requests
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -14,14 +16,10 @@ from .models import Contest, Submission
 
 User = get_user_model()
 
-judge_url = os.environ.get('JUDGE_URL', 'http://127.0.0.1:8001/')
 
-
-def add_contest(hosts: list, testers: list, title: str, start_time: datetime, end_time: datetime,
-                text: str = '') -> Contest:
-    contest = Contest.objects.create(hosts=hosts, testers=testers, title=title, start_time=start_time,
-                                     end_time=end_time, text=text)
-    return contest
+@receiver(post_save, sender=Submission)
+def judge_submission(sub, **kwargs):
+    pass
 
 # def add_tc(request, problem_id):
 #     problem = get_object_or_404(Problem, id=problem_id)

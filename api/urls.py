@@ -6,10 +6,12 @@ from judge import views as judge_view
 
 router = DefaultRouter()
 router.register(r'contests', views.ContestViewSet, 'contests')
+router.register(r'problems/(?P<problem_id>\d+)/comments', views.ProblemDiscussionViewSet, 'problem comments')
 router.register(r'problems', views.ProblemViewSet, 'problems')
 router.register(r'submissions', views.SubmissionViewSet, 'submissions')
-router.register(r'test_cases', views.TestCaseViewSet, 'test_cases')
+router.register(r'tutorials/(?P<problem_id>\d+)/comments', views.ProblemDiscussionViewSet, 'tutorial comments')
 router.register(r'tutorials', views.TutorialViewSet, 'tutorials')
+router.register(r'test_cases', views.TestCaseViewSet, 'test_cases')
 router.register(r'users', views.UserViewSet, 'users')
 
 urlpatterns = [
