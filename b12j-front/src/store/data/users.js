@@ -20,8 +20,6 @@ const slice = createSlice({
         }
     }
 });
-
-const {loggedIn} = slice.actions;
 export default slice.reducer;
 
 export class userActions extends basicActions {
@@ -49,11 +47,4 @@ export class userActions extends basicActions {
     currentUser = () => {
         return this.store.getState()[`${this.name}s`].info;
     }
-
-    addUserToStore = () => {
-        this.store.dispatch({
-            type: loggedIn.type,
-            payload: getCurrentUser(),
-        })
-    };
 }

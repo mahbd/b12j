@@ -33,11 +33,12 @@ export class submissionActions extends basicActions {
 
     _loadSubmission = (page = 1) => {
         const submissions = this.store.getState().submissions;
-        if (submissions.fetched.indexOf(page) !== -1 || submissions.loading) return;
+        if (submissions.fetched.indexOf(parseInt(page)) !== -1 || this.pending[parseInt(page)]) return;
         if (page < 1 || (submissions.total && page > submissions.total)) {
             alert("Wrong page");
             return;
         }
+        this.pending[parseInt(page)] = Date.now();
         this._load(`/submissions/?limit=20&offset=${(page - 1) * 20}`)
     };
 

@@ -73,6 +73,12 @@ class ProblemDiscussion(models.Model):
     parent = models.ForeignKey('ProblemDiscussion', blank=True, null=True, on_delete=models.CASCADE)
     text = models.TextField()
     date = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+    	return self.text[:20]
+    
+    class Meta:
+    	ordering = ['date']
 
 
 class TestCase(models.Model):

@@ -70,7 +70,7 @@ const ProblemCode = ({problem}) => {
   }
 
   return (
-    <div>
+    <div id={"codeEditor"}>
       <div className="row pr-3 pl-3">
         <select className="custom-select col-4" name="language" onChange={handleChange}>
           <option value="python">Python3</option>
@@ -87,7 +87,7 @@ const ProblemCode = ({problem}) => {
           <option value="20px">20px</option>
         </select>
       </div>
-      <AceEditor mode={language} value={code} theme={theme} onChange={onChangeCode} name={problem.id}
+      <AceEditor mode={language} value={code} theme={theme} onChange={onChangeCode} name={problem.id.toString()}
                  fontSize={font} width={"100%"} setOptions={{
         enableBasicAutocompletion: true,
         enableLiveAutocompletion: true,

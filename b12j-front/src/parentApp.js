@@ -13,6 +13,8 @@ import WebSocketReceive from "./store/webSocketReceive";
 import App from "./app";
 
 import {SuperContext} from "./context";
+import {problemDiscussionActions} from "./store/data/problemDiscussion";
+import {tutorialDiscussionActions} from "./store/data/tutorialDiscussion";
 
 const ParentApp = () => {
   const data = generateData();
@@ -46,16 +48,21 @@ const generateData = () => {
   });
 
   const contestActs = new contestActions(store, ws);
-  const userActs = new userActions(store, ws);
-  const submissionActs = new submissionActions(store, ws);
   const problemActs = new problemActions(store, ws);
+  const problemDiscussionActs = new problemDiscussionActions(store, ws);
+  const submissionActs = new submissionActions(store, ws);
   const tutorialActs = new tutorialActions(store, ws);
+  const tutorialDiscussionActs = new tutorialDiscussionActions(store, ws);
+  const userActs = new userActions(store, ws);
   return {
-    contestActs: contestActs,
-    userActs: userActs,
-    submissionActs: submissionActs,
-    problemActs: problemActs,
-    tutorialActs: tutorialActs,
-    store: store, ws: ws,
+    contestActs,
+    problemActs,
+    problemDiscussionActs,
+    store,
+    submissionActs,
+    tutorialActs,
+    tutorialDiscussionActs,
+    userActs,
+    ws,
   }
 }

@@ -14,6 +14,7 @@ import {SuperContext} from "./context";
 import LeftSideBar from "./apps/leftSideBar";
 import RightSideBar from "./apps/rightSideBar";
 import Home from "./apps/home";
+import Footer from "./apps/footer";
 
 
 const App = () => {
@@ -35,7 +36,6 @@ const App = () => {
         <LeftSideBar/>
       </div>
       <div className={"col"}>
-        <Redirect from={"/"} to={"/home"} exact={true}/>
         <Switch>
           <Route path={"/home"} component={Home}/>
           <Route path={urls.contests} component={ContestRoute}/>
@@ -45,9 +45,13 @@ const App = () => {
           <Route path={urls.user} component={UserRoute}/>
         </Switch>
       </div>
+      <Route exact path={"/"}>
+        <Redirect exact from={"/"} to={"/home"}/>
+      </Route>
       <div className={"col-auto"}>
         <RightSideBar/>
       </div>
+      <Footer />
     </div>
 
   );

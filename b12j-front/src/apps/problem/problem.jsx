@@ -1,35 +1,29 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext} from 'react';
 import {FormattedHtml} from "../../common/objectViewFuncs";
 import ProblemCode from "../../common/fields/problemCode";
 import {Link} from "react-router-dom";
-import {getCurrentUser} from "../../common/authService";
 import {SuperContext} from "../../context";
+import ProblemComments from "./comment/commentList";
 
 const Problem = ({match}) => {
   const {problemActs, userActs} = useContext(SuperContext);
   const {problemId} = match.params;
   const problem = problemActs.getById(problemId);
 
-  const currentUser = getCurrentUser() && getCurrentUser().id;
-  const is_admin = currentUser && getCurrentUser().is_superuser;
-
   return (
     problem && <div className="container">
-      {/*{(currentUser === problem.by || is_admin) &&*/}
-      {/*<Link to={`/problems/edit/${problem.id}`}>*/}
-      {/*    <button className="btn-lg btn-success">Edit</button>*/}
-      {/*</Link>}*/}
       <div className="row pt-2 pb-5">
         <div className="col"><Link to={"/problems"} className={"white-link"}>Back</Link></div>
         <h1 className={"col-auto h1 text-secondary rounded-3"}>{problem.title}</h1>
-        <div className="col"><p className={"text-end"}>Submit</p></div>
+
+        <div className="col text-end"><a className={"white-link"} href={"#codeEditor"}>Code Editor</a></div>
         <p className={"text-center"}>Writer: {userActs.fullName(problem.by)} <br/>
           Time Limit: {problem.memory_limit} MB <br/>
           Memory Limit: {problem.time_limit} second(s) <br/>
         </p>
       </div>
       <div>
-        {problem.notice && <div className="alert alert-info">{problem.notice}</div>}
+        {problem.notice && <div className="alert alert-secondary">{problem.notice}</div>}
         <b className={"h5"}>Problem statement</b>
         <FormattedHtml text={problem.text}/> <br/>
         <b className={"h5"}>Input Terms</b>
@@ -55,8 +49,9 @@ const Problem = ({match}) => {
         </tr>)}
         </tbody>
       </table>
-      <ProblemCode problem={problem} />
+      <ProblemCode problem={problem}/>
       <br/><br/>
+      <ProblemComments problemId={problem.id}/>
     </div>
   );
 }

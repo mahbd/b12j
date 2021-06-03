@@ -95,7 +95,7 @@ class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
 class TutorialDiscussionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return TutorialDiscussion.objects.filter(tutorial_id=self.kwargs.get('tutorial_id'))
-    serializer_class = ProblemDiscussionSer
+    serializer_class = TutorialDiscussionSer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPermittedDeleteDiscussion]
 
 

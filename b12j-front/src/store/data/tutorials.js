@@ -34,7 +34,7 @@ export class tutorialActions extends basicActions {
 
     _loadTutorials = (page) => {
         const tutorials = this.store.getState().tutorials;
-        if (tutorials.fetched.indexOf(page) !== -1 || tutorials.loading) return;
+        if (tutorials.fetched.indexOf(parseInt(page)) !== -1 || tutorials.loading) return;
         if (page < 1 || (tutorials.total && page > tutorials.total)) {
             alert("Wrong page");
             return;

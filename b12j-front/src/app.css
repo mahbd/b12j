@@ -16,6 +16,10 @@ a.white-link{
     font-size: 20px;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .vlr {
     border-right: 4px solid black;
     height: 100%;
@@ -28,4 +32,25 @@ a.white-link{
 
 .width-100 {
     width: 250px;
+}
+
+.headroom {
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.headroom--unfixed {
+  position: relative;
+  transform: translateY(0);
+}
+.headroom--scrolled {
+  transition: transform 200ms ease-in-out;
+}
+.headroom--unpinned {
+  position: fixed;
+  transform: translateY(-100%);
+}
+.headroom--pinned {
+  position: fixed;
+  transform: translateY(0%);
 }

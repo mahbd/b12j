@@ -4,12 +4,16 @@ import problems from './data/problems';
 import users from './data/users';
 import submissions from './data/submissions';
 import tutorials from "./data/tutorials";
+import problemDiscussions from "./data/problemDiscussion";
+import tutorialDiscussions from "./data/tutorialDiscussion";
 
 
 export default combineReducers({
-    contests: contests,
-    problems: problems,
-    submissions: submissions,
-    users: users,
-    tutorials: tutorials,
+    contests,
+    problems,
+    problemDiscussions,
+    submissions,
+    tutorials,
+    tutorialDiscussions,
+    users,
 });

@@ -25,7 +25,7 @@ export class contestActions extends basicActions {
 
     _loadContest = (page=1) => {
         const contests = this.store.getState().contests;
-        if (contests.fetched.indexOf(page) !== -1 || contests.loading) return;
+        if (contests.fetched.indexOf(parseInt(page)) !== -1 || contests.loading) return;
         if(page < 1 || (contests.total && page > contests.total)) {
             alert("Wrong page");
         }
