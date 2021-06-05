@@ -2,12 +2,13 @@ import React, {useContext} from 'react';
 import {FormattedHtml} from "../../common/objectViewFuncs";
 import {Link} from "react-router-dom";
 import {SuperContext} from "../../context";
-import TutorialComments from "./comment/commentList";
+import CommentSection from "../../common/commentSection";
 
 const Tutorial = ({match}) => {
-  const {tutorialActs} = useContext(SuperContext);
+  const {tutorialActs, tutorialDiscussionActs} = useContext(SuperContext);
   const {tutorialId} = match.params;
   const tutorial = tutorialActs.getById(tutorialId);
+  const commentList = tutorial ? tutorialDiscussionActs.getList(tutorialId): [];
 
   return (
     tutorial && <div className="container">
@@ -22,7 +23,7 @@ const Tutorial = ({match}) => {
       </div>
 
       <br/><br/>
-      <TutorialComments tutorialId={tutorial.id}/>
+      <CommentSection commentList={commentList} commentCat={'tutorial'}/>
     </div>
   );
 }

@@ -30,21 +30,10 @@ export class tutorialDiscussionActions extends basicActions {
     super(slice, store, ws, name);
   }
 
-  _loadTutorialDiscussions = (tutorial) => {
-    tutorial = parseInt(tutorial);
-    const tutorialDiscussions = this.store.getState()[`${name}s`];
-    if (tutorialDiscussions.fetched.indexOf(tutorial) !== -1 || this.pending[tutorial]) return;
-    if (tutorial < 1) {
-      alert("Wrong page");
-      return;
-    }
-    this.pending[tutorial] = Date.now();
-    this._load(`/tutorials/${tutorial}/comments/?limit=1000`);
-  };
-
-  getList = (page = 1) => {
-    this._loadTutorialDiscussions(page);
-    return this.list(this.store.getState()[`${name}s`].list[page]);
+  getList = (tutorial = 1) => {
+    tutorial = parseInt(tutorial)
+    this._loadSection(`/tutorials/${tutorial}/comments/?limit=1000`, tutorial);
+    return this.list(this.store.getState()[`${name}s`].list[tutorial]);
   }
 
   totalPages = () => {

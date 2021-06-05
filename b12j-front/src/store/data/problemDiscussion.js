@@ -31,20 +31,10 @@ export class problemDiscussionActions extends basicActions {
     super(slice, store, ws, name);
   }
 
-  _loadProblemDiscussions = (problem) => {
-    const problemDiscussions = this.store.getState()[`${name}s`];
-    if (problemDiscussions.fetched.indexOf(parseInt(problem)) !== -1 || this.pending[parseInt(problem)]) return;
-    if (problem < 1) {
-      alert("Wrong page");
-      return;
-    }
-    this.pending[parseInt(problem)] = Date.now();
-    this._load(`/problems/${problem}/comments/?limit=1000`);
-  };
-
-  getList = (page = 1) => {
-    this._loadProblemDiscussions(page);
-    return this.list(this.store.getState()[`${name}s`].list[page]);
+  getList = (problem = 1) => {
+    problem = parseInt(problem)
+    this._loadSection(`/problems/${problem}/comments/?limit=1000`, problem);
+    return this.list(this.store.getState()[`${name}s`].list[problem]);
   }
 
   totalPages = () => {

@@ -7,7 +7,7 @@ export const standardInitialState = () => {
   return {
     list: [],
     dict: {},
-    fetched: [],
+    fetched: {},
     total: null,
     loading: false,
   }
@@ -57,7 +57,7 @@ export const receivedWithPagination = (state, action) => {
   const nextUrl = action.payload.next;
   if (!nextUrl) page = Math.ceil(action.payload.count / 20)
   else page = getPageNumberFromLink(nextUrl);
-  state.fetched.push(parseInt(page));
+  state.fetched[page] = Date.now();
   state.list[page] = []
   state.dict[page] = {}
   state.total = Math.ceil(action.payload.count / 20);
@@ -74,7 +74,7 @@ export const receivedDiscussions = (state, action, name) => {
   state.loading = false;
   if (pid) {
     pid = parseInt(pid)
-    state.fetched.push(pid);
+    state.fetched[pid] = Date.now();
     state.list[pid] = [];
     state.dict[pid] = {};
     const data = action.payload.results;
@@ -107,9 +107,8 @@ export class basicActions {
     this.received = actions[`${name}sReceived`];
     this.updated = actions[`${name}Updated`];
     this.pending = {};
+    this.pendingId = {};
   }
-
-  requestedIdQueue = [];
 
   start = () => {
     this.store.dispatch({
@@ -123,6 +122,16 @@ export class basicActions {
     })
   };
 
+  _loadSection = (url, section) => {
+    if (this.store.getState()[`${this.name}s`].fetched[section] || this.pending[section]) return;
+    if (section < 1) {
+      alert("Wrong page");
+      return;
+    }
+    this.pending[section] = Date.now();
+    this._load(url);
+  }
+
   _load = (url = urls[`${this.name}s`] + '/') => {
     this.store.dispatch(apiCallBegan({
       url: url,
@@ -133,8 +142,8 @@ export class basicActions {
   };
 
   _loadById = (id) => {
-    if (this.requestedIdQueue.indexOf(id) === -1) {
-      this.requestedIdQueue.push(id);
+    if (!this.pendingId[id]) {
+      this.pendingId[id] = Date.now();
       const toSend = {"method": "GET", "target": this.name, "id": id, 'id_token': getJwt()}
       this.ws.send(JSON.stringify(toSend));
       this.start();

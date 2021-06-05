@@ -32,18 +32,9 @@ export class tutorialActions extends basicActions {
         super(slice, store, ws, name);
     }
 
-    _loadTutorials = (page) => {
-        const tutorials = this.store.getState().tutorials;
-        if (tutorials.fetched.indexOf(parseInt(page)) !== -1 || tutorials.loading) return;
-        if (page < 1 || (tutorials.total && page > tutorials.total)) {
-            alert("Wrong page");
-            return;
-        }
-        this._load(`/tutorials/?limit=20&offset=${(page - 1) * 20}`);
-    };
-
     getList = (page=1) => {
-        this._loadTutorials(page);
+        page = parseInt(page);
+        this._loadSection(`/tutorials/?limit=20&offset=${(page - 1) * 20}`, page);
         return this.list(this.store.getState().tutorials.list[page]);
     }
 

@@ -23,18 +23,9 @@ export class contestActions extends basicActions {
         super(slice, store, ws, name);
     }
 
-    _loadContest = (page=1) => {
-        const contests = this.store.getState().contests;
-        if (contests.fetched.indexOf(parseInt(page)) !== -1 || contests.loading) return;
-        if(page < 1 || (contests.total && page > contests.total)) {
-            alert("Wrong page");
-        }
-
-        this._load(`/contests/?limit=20&offset=${(page - 1)*20}`)
-    };
-
     getList = (page=1) => {
-        this._loadContest(page);
+        page = parseInt(page)
+        this._loadSection(`/contests/?limit=20&offset=${(page - 1)*20}`, page);
         return this.list(this.store.getState().contests.list[page]);
     }
 }

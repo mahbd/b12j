@@ -31,19 +31,9 @@ export class problemActions extends basicActions {
         super(slice, store, ws, name);
     }
 
-    _loadProblems = (page) => {
-        const problems = this.store.getState()[`${name}s`];
-        if (problems.fetched.indexOf(parseInt(page)) !== -1 || this.pending[parseInt(page)]) return;
-        if (page < 1 || (problems.total && page > problems.total)) {
-            alert("Wrong page");
-            return;
-        }
-        this.pending[parseInt(page)] = Date.now();
-        this._load(`/problems/?limit=20&offset=${(page - 1) * 20}`);
-    };
-
     getList = (page=1) => {
-        this._loadProblems(page);
+        page = parseInt(page);
+        this._loadSection(`/problems/?limit=20&offset=${(page - 1) * 20}`, page);
         return this.list(this.store.getState()[`${name}s`].list[page]);
     }
 

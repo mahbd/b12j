@@ -45,6 +45,7 @@ const CodeEditor = ({mode, theme, font, name, value, label, onChange}) => {
         return () => {
             document.body.removeChild(script);
         }
+        // eslint-disable-line react-hooks/exhaustive-deps
     }, [font, mode, name, theme]);
 
     return (

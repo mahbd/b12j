@@ -3,12 +3,12 @@ import {FormattedHtml} from "../../common/objectViewFuncs";
 import ProblemCode from "../../common/fields/problemCode";
 import {Link} from "react-router-dom";
 import {SuperContext} from "../../context";
-import ProblemComments from "./comment/commentList";
-
+import CommentSection from "../../common/commentSection";
 const Problem = ({match}) => {
-  const {problemActs, userActs} = useContext(SuperContext);
+  const {problemActs, problemDiscussionActs, userActs} = useContext(SuperContext);
   const {problemId} = match.params;
   const problem = problemActs.getById(problemId);
+  let commentList = problem ? problemDiscussionActs.getList(problemId) : [];
 
   return (
     problem && <div className="container">
@@ -51,7 +51,7 @@ const Problem = ({match}) => {
       </table>
       <ProblemCode problem={problem}/>
       <br/><br/>
-      <ProblemComments problemId={problem.id}/>
+      <CommentSection commentCat={'problem'} commentList={commentList} />
     </div>
   );
 }

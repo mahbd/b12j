@@ -10,6 +10,9 @@ import "ace-builds/src-noconflict/mode-python"
 import "ace-builds/src-noconflict/mode-c_cpp"
 import "ace-builds/src-noconflict/theme-chrome"
 import "ace-builds/src-noconflict/theme-gob"
+import "ace-builds/src-noconflict/ext-language_tools"
+import "ace-builds/src-noconflict/snippets/c_cpp"
+import "ace-builds/src-noconflict/snippets/python"
 
 const ProblemCode = ({problem}) => {
   const history = useHistory();
@@ -88,10 +91,9 @@ const ProblemCode = ({problem}) => {
         </select>
       </div>
       <AceEditor mode={language} value={code} theme={theme} onChange={onChangeCode} name={problem.id.toString()}
-                 fontSize={font} width={"100%"} setOptions={{
-        enableBasicAutocompletion: true,
-        enableLiveAutocompletion: true,
-        enableSnippets: true
+                 fontSize={font} width={"100%"} enableBasicAutocompletion={true} enableLiveAutocompletion={true}
+                 enableSnippets={true} setOptions={{
+        useWorker: false,
       }}/>
       {!user && <div className="alert alert-danger">Please login to submit</div>}
       <button disabled={!user} className="btn btn-success" onClick={submit}>Submit</button>
