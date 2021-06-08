@@ -7,7 +7,7 @@ import {
 } from "../basicReducerTemplate";
 import {createSlice} from "@reduxjs/toolkit";
 
-const name = 'problem';
+const name = 'profile';
 
 const slice = createSlice({
   name: `${name}s`,
@@ -17,24 +17,20 @@ const slice = createSlice({
   reducers: {
     ...basicReducers(name),
     [`${name}sReceived`]: (state, action) => {
-      receivedWithPagination(state, action);
+      console.log(action.payload);
     },
-    [`${name}Updated`]: (state, action) => {
-      updatedWithPagination(state, action);
-    }
   }
 });
 export default slice.reducer;
 
-export class problemActions extends basicActions {
+export class profileActions extends basicActions {
   constructor(store, ws) {
     super(slice, store, ws, name);
   }
 
-  getList = (page = 1) => {
-    page = parseInt(page);
-    this._loadSection(`/problems/?limit=20&offset=${(page - 1) * 20}`, page);
-    return this.list(this.store.getState()[`${name}s`].list[page]);
+  getList = (content_name) => {
+    this._load(`/${content_name}/?limit=1000`);
+    return this.list(this.store.getState()[`${name}s`].list[content_name]);
   }
 
   totalPages = () => {

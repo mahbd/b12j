@@ -45,7 +45,7 @@ class Contest(models.Model):
 
 
 class Problem(models.Model):
-    by = models.ForeignKey(User,blank=True, null=True, on_delete=models.SET_NULL)
+    by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=100, unique=True)
     text = models.TextField()
     inTerms = models.TextField()
@@ -73,18 +73,18 @@ class ProblemDiscussion(models.Model):
     parent = models.ForeignKey('ProblemDiscussion', blank=True, null=True, on_delete=models.CASCADE)
     text = models.TextField()
     date = models.DateTimeField(default=timezone.now)
-    
+
     def __str__(self):
-    	return self.text[:20]
-    
+        return self.text[:20]
+
     class Meta:
-    	ordering = ['date']
+        ordering = ['date']
 
 
 class TestCase(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     inputs = models.TextField()
-    output = models.TextField()
+    output = models.TextField(blank=True, null=True)
     date = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):

@@ -41,24 +41,22 @@ class ProblemViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def user_problems(self, request, *args):
-        if request.user:
-            problems = ProblemSer(Problem.objects.filter(by=request.user), many=True).data
-            return Response({"results": problems})
-        return Response({"details": "User is not authenticated"}, status=301)
+        problems = ProblemSer(Problem.objects.filter(by=request.user), many=True).data
+        return Response({"results": problems, "name": "user_problems"})
 
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def test_problems(self, request, *args):
         q = Q(contest__hosts=request.user) | Q(contest__testers=request.user)
         problems = ProblemSer(Problem.objects.filter(q, contest__start_time__gt=datetime.now()), many=True).data
-        return Response({"results": problems})
+        return Response({"results": problems, "name": "test_problems"})
 
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def solved_problems(self, request, *args):
         problems = ProblemSer(Problem.objects.filter(submission__verdict='AC', submission__by=request.user),
                               many=True).data
-        return Response({"results": problems})
+        return Response({"results": problems, "name": "solved_problems"})
 
     serializer_class = ProblemSer
 
@@ -66,6 +64,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
 class ProblemDiscussionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return ProblemDiscussion.objects.filter(problem_id=self.kwargs.get('problem_id'))
+
     serializer_class = ProblemDiscussionSer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPermittedDeleteDiscussion]
 
@@ -78,7 +77,7 @@ class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     @permission_classes([permissions.IsAuthenticated])
     def user_submissions(self, request, *args):
         submissions = SubmissionSer(Submission.objects.filter(by=request.user), many=True).data
-        return Response({"results": submissions})
+        return Response({"results": submissions, "name": "user_submission"})
 
 
 class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
@@ -95,6 +94,7 @@ class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
 class TutorialDiscussionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return TutorialDiscussion.objects.filter(tutorial_id=self.kwargs.get('tutorial_id'))
+
     serializer_class = TutorialDiscussionSer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPermittedDeleteDiscussion]
 

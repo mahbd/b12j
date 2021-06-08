@@ -1,4 +1,34 @@
 import os
+from dataclasses import dataclass
+
+
+@dataclass(unsafe_hash=True)
+class JudgeTestCase:
+    def __init__(self, test_id, provided_input, expected_output=None, output_checker=None, on_complete=None):
+        if bool(expected_output) == bool(output_checker):
+            raise ValueError("expect output or output_checker, only one is required")
+        if output_checker and not callable(output_checker):
+            raise ValueError("Output checker must be function")
+        if on_complete and not callable(on_complete):
+            raise ValueError("On complete must be an function")
+        self.id = test_id
+        self.input = provided_input
+        self.expected_output = expected_output
+        self.output_checker = output_checker
+        self.on_complete = on_complete
+
+
+@dataclass(unsafe_hash=True)
+class JudgeData:
+    def __init__(self, judge_id, code, language, test_cases: list[JudgeTestCase], on_complete, time_limit=1,
+                 memory_limit=256):
+        self.id = judge_id
+        self.code = code
+        self.language = language
+        self.test_cases = test_cases
+        self.on_complete = on_complete
+        self.time_limit = time_limit
+        self.memory_limit = memory_limit
 
 
 def create_files(path, files_with_text):
@@ -28,8 +58,6 @@ def compile_code_cpp(path, code):
 
 
 def compile_code_python(path, code, sample):
-    if os.path.exists(path):
-        return 'OK', None
     create_files(path, zip(['.py', '_in.txt', '_err.txt'], [code, sample, '']))
     stat = os.system(f'timeout {2} python3 {path}.py < {path}_in.txt 2> {path}_err.txt')
     if stat != 0:
