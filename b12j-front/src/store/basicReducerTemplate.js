@@ -69,7 +69,9 @@ export const receivedWithPagination = (state, action) => {
 }
 
 export const receivedDiscussions = (state, action, name) => {
-  let pid = action.payload.results[0][name];
+  const result = action.payload.results[0];
+  let pid = undefined;
+  if (result) pid = action.payload.results[0][name];
 
   state.loading = false;
   if (pid) {

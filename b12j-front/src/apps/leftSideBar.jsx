@@ -7,7 +7,8 @@ import {urls} from "../configuration";
 const LeftSideBar = () => {
     const {contestActs, tutorialActs} = useContext(SuperContext);
     const tutorials = tutorialActs.getList();
-    const contestList = contestActs.getList();
+    let contestList = contestActs.getList();
+    contestList = contestList.slice(0, Math.min(contestList.length, 5))
     return (
         <div>
             <div className={"width-100 d-none d-lg-block float-start p-2"}>

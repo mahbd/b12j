@@ -79,11 +79,16 @@ class ProblemSer(serializers.ModelSerializer):
 
 
 class ProblemDiscussionSer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
-
     class Meta:
         model = ProblemDiscussion
         fields = '__all__'
+
+    def validate(self, attrs):
+        if self.instance:
+            pass
+        else:
+            attrs = add_user_in_serializer(self, attrs)
+        return attrs
 
 
 class SubmissionSer(serializers.ModelSerializer):
@@ -91,7 +96,7 @@ class SubmissionSer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        exclude = ('details',)
+        fields = '__all__'
         read_only_fields = ['verdict', 'contest', 'by']
         extra_kwargs = {
             'code': {'write_only': True},
