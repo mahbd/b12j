@@ -1,4 +1,4 @@
-asgiref
+asgiref~=3.3.4
 attrs
 autobahn==21.3.1
 Automat==20.2.0
@@ -11,7 +11,7 @@ chardet==4.0.0
 constantly==15.1.0
 cryptography==3.4.7
 daphne==3.0.2
-Django
+Django~=3.2.4
 django-cors-headers==3.7.0
 django-heroku
 djangorestframework==3.12.4
@@ -51,3 +51,5 @@ uritemplate==3.0.1
 urllib3==1.26.4
 zope.interface==5.4.0
 psycopg2
+
+pymongo~=3.11.4

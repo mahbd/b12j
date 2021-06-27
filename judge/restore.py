@@ -1,15 +1,100 @@
 import json
+import os
+import ssl
 import threading
 from random import randint
 
 import requests
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
+from pymongo import MongoClient
 
-from judge.models import get_random_id, Contest, Problem, TestCase, Submission
-from users.models import UserGroup
+from judge.models import Contest, Problem, TestCase, Submission, ContestProblem
 
 User = get_user_model()
+
+
+class B12JMongoDB:
+    def __init__(self, link: str):
+        self.my_client = MongoClient(link, ssl_cert_reqs=ssl.CERT_NONE)
+        self.my_db = self.my_client['b12j_db']
+        self.user_table = self.my_db['user_user']
+        self.contest_table = self.my_db['judge_contest']
+        self.contest_testers_table = self.my_db['judge_contest_testers']
+        self.contest_hosts_table = self.my_db['judge_contest_hosts']
+        self.problem_table = self.my_db['judge_problem']
+        self.submission_table = self.my_db['judge_submission']
+
+
+class B12JMongoDBGet(B12JMongoDB):
+    def __init__(self, link: str):
+        super().__init__(link)
+
+    def users(self):
+        for user in self.user_table.find():
+            user.pop('_id')
+            user.pop('id')
+            user.pop('picture')
+            user.pop('cf_handle')
+            user.pop('batch')
+            user.pop('is_admin')
+            User.objects.create(**user)
+
+    def convert_m_user_id(self, user_id):
+        user = self.user_table.find_one({'id': user_id})
+        try:
+            user = User.objects.get(email=user['email'])
+        except TypeError:
+            print(user_id, user)
+        return user.id
+
+    def contests(self):
+        contests = self.contest_table.find()
+        for contest in contests:
+            contest.pop('_id')
+            contest.pop('group_id')
+            problems = self.problem_table.find({'contest_id': contest['id']})
+            hosts = self.contest_hosts_table.find({'contest_id': contest['id']})
+            testers = self.contest_testers_table.find({'contest_id': contest['id']})
+            contest.pop('id')
+            try:
+                contest = Contest.objects.create(**contest)
+            except Exception as e:
+                contest = Contest.objects.get(**contest)
+                print(e)
+
+            for problem in problems:
+                problem_id = self.convert_m_problem_id(problem['id'])
+                ContestProblem.objects.create(problem_id=problem_id, contest=contest, problem_char=problem['conProbId'])
+            for host in hosts:
+                contest.writers.add(User.objects.get(id=self.convert_m_user_id(host['user_id'])))
+            for tester in testers:
+                contest.testers.add(User.objects.get(id=self.convert_m_user_id(tester['user_id'])))
+            contest.save()
+
+    def problems(self):
+        problems = self.problem_table.find()
+        for problem in problems:
+            problem = dict(problem)
+            problem.pop('_id')
+            problem.pop('id')
+            problem['by_id'] = self.convert_m_user_id(problem['by_id'])
+            problem.pop('contest_id')
+            problem.pop('group_id')
+            problem.pop('conProbId')
+            Problem.objects.create(**problem)
+
+    def convert_m_problem_id(self, problem_id):
+        problem = self.problem_table.find_one({'id': problem_id})
+        problem = Problem.objects.get(title=problem['title'])
+        return problem.id
+
+    def submissions(self):
+        submissions = self.submission_table.find()
+        for submission in submissions:
+            submission = dict(submission)
+            submission.pop('_id')
+            submission.pop('id')
 
 
 def get_user_from_username(username):
@@ -17,32 +102,7 @@ def get_user_from_username(username):
         return User.objects.get(first_name=username, username=username)
     except User.DoesNotExist:
         return User.objects.create(first_name=username, username=username,
-                                   email=str(get_random_id()) + str(randint(1, 1000)) + '@' + '.gmail.com', )
-
-
-def contests_from_old():
-    url = 'http://mahbd.pythonanywhere.com/compiler/con_tra'
-    response = requests.get(url).json()['response']
-    print("started adding contest")
-    for m in response:
-        host = get_user_from_username(m['owner'])
-        tester = get_user_from_username(m['tester'])
-        UserGroup.objects.get_or_create(name=m['group'])
-        group = UserGroup.objects.get(name=m['group'])
-        Contest.objects.get_or_create(title=m['contest_name'], text='Restored from old Judge',
-                                      start_time=m['start_time'], end_time=m['end_time'], group=group)
-        contest = Contest.objects.get(title=m['contest_name'], text='Restored from old Judge',
-                                      start_time=m['start_time'], end_time=m['end_time'], group=group)
-        contest.hosts.add(host)
-        contest.testers.add(tester)
-        contest.save()
-    print('contest add complete')
-
-
-def contests_from_old_handle(request):
-    thread = threading.Thread(target=contests_from_old)
-    thread.start()
-    return JsonResponse({'details': "Success"})
+                                   email=str(randint(1, 10000)) + str(randint(1, 1000)) + '@' + '.gmail.com', )
 
 
 def problem_from_old():
