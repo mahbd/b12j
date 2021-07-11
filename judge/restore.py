@@ -109,3 +109,10 @@ class B12JMongoDBGet(B12JMongoDB):
             test_case.pop('id')
             test_case['problem_id'] = self.convert_m_problem_id(test_case['problem_id'])
             TestCase.objects.create(**test_case)
+
+    def full_restore(self):
+        self.users()
+        self.problems()
+        self.contests()
+        self.submissions()
+        self.test_cases()
