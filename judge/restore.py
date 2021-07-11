@@ -95,7 +95,6 @@ class B12JMongoDBGet(B12JMongoDB):
             submission = dict(submission)
             submission.pop('_id')
             submission.pop('id')
-            submission.pop('details')
             submission.pop('time_code')
             submission['by_id'] = self.convert_m_user_id(submission['by_id'])
             submission['problem_id'] = self.convert_m_problem_id(submission['problem_id'])

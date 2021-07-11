@@ -98,7 +98,7 @@ class Submission(models.Model):
     code = models.TextField()
     language = models.CharField(max_length=10, choices=(('python', 'Python3'), ('c_cpp', 'C/C++')))
     verdict = models.CharField(max_length=5, default='PJ')
-    wrong_tc = models.ForeignKey(TestCase, on_delete=models.SET_NULL, null=True, blank=True)
+    details = models.TextField(blank=True, null=True)
     date = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
