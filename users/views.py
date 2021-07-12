@@ -1,5 +1,6 @@
 import json
 import string
+from datetime import timedelta
 from random import choices, randint
 
 from django.core.serializers import serialize
@@ -24,12 +25,20 @@ def email_verification(user: User, host):
     user.email_user('Confirm Your email', text, EMAIL_HOST_USER)
 
 
-def serialize_user(user):
-    json_data = json.loads(serialize('json', [user]))[0]
-    user = json_data['fields']
-    user['id'] = json_data['pk']
-    user.pop('password', None)
-    jwt_str = jwt_writer(**user)
+def serialize_user(user: User):
+    data = {
+        'email': user.email,
+        'expire': str(timezone.now() + timedelta(days=7)),
+        'first_name': user.first_name,
+        'full_name': user.get_full_name() or user.username,
+        'id': user.id,
+        'is_active': user.is_active,
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
+        'last_name': user.last_name,
+        'username': user.username,
+    }
+    jwt_str = jwt_writer(**data)
     return jwt_str
 
 
