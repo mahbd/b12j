@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from .models import Contest, Submission
+from .models import Contest, Submission, TestCase
 
 User = get_user_model()
 
@@ -51,6 +51,32 @@ def judge_submission(instance: Submission, created, **kwargs):
         data = json.dumps(data)
         thread = threading.Thread(target=_judge_submission, args=[data, instance.id])
         thread.start()
+
+
+@receiver(post_save, sender=TestCase)
+def process_test_case(instance: TestCase, created, **kwargs):
+    if created:
+        code = instance.problem.corCode
+        time_limit = instance.problem.time_limit
+        test_text = instance.inputs
+        data = {
+            'code': code,
+            'time_limit': time_limit,
+            'input_text': test_text
+        }
+        data = json.dumps(data)
+
+        judge_url = os.environ.get('JUDGE_URL') + f'/get_output/{instance.id}/'
+        response = requests.post(judge_url, json=data)
+        if response.status_code == 200:
+            output = response.json()['output']
+            instance.output = output
+            instance.save()
+        else:
+            # ToDo: implement remote logging system
+            print(response.content)
+            print('Error happened')
+
 
 
 def _calculate_standing(submission_list):

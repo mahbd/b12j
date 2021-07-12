@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import get_list_or_404
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action, permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 # from api.serializers import, TutorialCommentSerializer
@@ -102,7 +103,14 @@ class TutorialDiscussionViewSet(viewsets.ModelViewSet):
 class TestCaseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.GET.get('problem_id'):
-            return get_list_or_404(TestCase, problem_id=self.request.GET.get('problem_id'))
+            try:
+                problem = Problem.objects.get(id=self.request.GET.get('problem_id'))
+            except Problem.DoesNotExist:
+                raise ValidationError("Requested problem doesn't exist")
+            if not self.request.user.is_staff and self.request.user.id != problem.by_id:
+                raise ValidationError("Only problem writer and staff can add and edit new test cases")
+            return problem.testcase_set.all()
         return TestCase.objects.all()
 
     serializer_class = TestCaseSer
+    permission_classes = [permissions.IsAuthenticated]
