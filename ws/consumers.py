@@ -118,7 +118,7 @@ def user(request):
 def contest(request):
     if request['method'] == 'GET':
         if Contest.objects.filter(id=request['id']):
-            return dict(ContestSer(Contest.objects.filter(id=request['id'])).data) | request
+            return dict(ContestSer(Contest.objects.get(id=request['id'])).data) | request
         return {'target': False}
 
 
