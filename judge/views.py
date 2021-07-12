@@ -1,75 +1,56 @@
+import json
 import os
-from datetime import datetime
+import threading
 
 import requests
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 from .models import Contest, Submission
-
-# Problem, TestCase, Submission
 
 User = get_user_model()
 
 
-@receiver(post_save, sender=Submission)
-def judge_submission(sub, **kwargs):
-    pass
+def _judge_submission(data, check_id):
+    judge_url = os.environ.get('JUDGE_URL') + f'/judge/{check_id}/'
+    response = requests.post(judge_url, json=data)
+    if response.status_code == 200:
+        data = response.json()['status']
+        submission = Submission.objects.get(id=check_id)
+        data[0], data[2] = data[2], data[0]
+        submission.verdict = data[2]
+        submission.details = data
+        submission.save()
+    else:
+        # ToDo: implement remote logging system
+        print('Error happened')
 
-# def add_tc(request, problem_id):
-#     problem = get_object_or_404(Problem, id=problem_id)
-#     context = {"problem": problem, "error": None}
-#     if request.method == 'POST':
-#         data = request.POST
-#         inputs = data['inputs']
-#         tc = TestCase(inputs=inputs, problem=problem)
-#         data = requests.post(f'{judge_url}add_tc/', {"inputs": inputs,
-#                                                      "code": problem.corCode,
-#                                                      "time_limit": problem.time_limit,
-#                                                      "id": tc.id,
-#                                                      "title": problem.title})
-#         data = data.json()
-#         if data['status'] == 'OK':
-#             tc.output = data['output']
-#             tc.save()
-#             return {"test_case": tc}
-#         return {"problem": problem, "error": data['status']}
-#     return context
-#
-#
-# def add_test_case(request, problem_id):
-#     context = add_tc(request, problem_id)
-#     if context.get('test_case'):
-#         return render(request, 'contest/test_case_success.html', context)
-#     return render(request, 'contest/test_case.html', context)
-#
-#
-# def add_test_case_python(request, problem_id):
-#     context = add_tc(request, problem_id)
-#     if context.get('test_case'):
-#         return JsonResponse({'output': context.get('test_case').output})
-#     return JsonResponse({}, status=400)
-#
-#
-# @login_required
-# def add_problem(request, contest_id):
-#     contest = get_object_or_404(Contest, id=contest_id)
-#     if request.method == 'POST':
-#         pass
-#
-#
-# def show_problem(request, problem_id):
-#     if problem_id:
-#         if problem_id:
-#             problem = get_object_or_404(Problem, id=problem_id)
-#             context = {"problem": problem}
-#             render(request, 'contest/problem.html', context)
-#     raise Http404
+
+@receiver(post_save, sender=Submission)
+def judge_submission(instance: Submission, created, **kwargs):
+    if created:
+        code = instance.code
+        language = instance.language
+        time_limit = instance.problem.time_limit
+        test_cases = instance.problem.testcase_set.all()
+        input_list, output_list = [], []
+        for tc in test_cases:
+            input_list.append(tc.inputs)
+            output_list.append(tc.output)
+
+        data = {
+            'code': code,
+            'language': language,
+            'time_limit': time_limit,
+            'input_list': input_list,
+            'output_list': output_list
+        }
+        data = json.dumps(data)
+        thread = threading.Thread(target=_judge_submission, args=[data, instance.id])
+        thread.start()
 
 
 def _calculate_standing(submission_list):
@@ -91,7 +72,6 @@ def _calculate_standing(submission_list):
 
 
 def standing(request, contest_id):
-    q = Q()
     contest = get_object_or_404(Contest, id=contest_id)
     submissions = Submission.objects.filter(contest_id=contest_id, verdict='AC')
     during_contest, after_contest = [], []
