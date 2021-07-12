@@ -59,6 +59,18 @@ class ProblemViewSet(viewsets.ModelViewSet):
                               many=True).data
         return Response({"results": problems, "name": "solved_problems"})
 
+    @action(detail=False)
+    def contest_problems(self, request, *args):
+        contest_id = request.GET.get('contest_id')
+        if contest_id:
+            try:
+                problems = Problem.objects.filter(contestproblem__contest_id=contest_id)
+            except Exception as e:
+                print(e)
+                raise ValidationError('Internal error')
+            return Response({'problems': ProblemSer(problems, many=True).data, 'contest_id': contest_id})
+        raise ValidationError('Contest id must be present on parameter')
+
     serializer_class = ProblemSer
 
 
