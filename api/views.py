@@ -26,7 +26,7 @@ class ContestViewSet(viewsets.ModelViewSet):
     @permission_classes([permissions.IsAuthenticated])
     def user_contests(self, request, *args):
         if request.user:
-            contests = ContestSer(Contest.objects.filter(hosts=request.user), many=True).data
+            contests = ContestSer(Contest.objects.filter(writers=request.user), many=True).data
             return Response({"results": contests})
         return Response({"details": "User is not authenticated"}, status=301)
 
