@@ -48,7 +48,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def test_problems(self, request, *args):
-        q = Q(contest__hosts=request.user) | Q(contest__testers=request.user)
+        q = Q(contest__writers=request.user) | Q(contest__testers=request.user)
         problems = ProblemSer(Problem.objects.filter(q, contest__start_time__gt=datetime.now()), many=True).data
         return Response({"results": problems, "name": "test_problems"})
 
