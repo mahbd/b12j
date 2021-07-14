@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_list_or_404
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action, permission_classes
@@ -10,7 +11,7 @@ from rest_framework.response import Response
 # from api.serializers import, TutorialCommentSerializer
 from api.permissions import IsPermittedEditContest, IsPermittedAddContest, IsPermittedDeleteDiscussion
 from api.serializers import ContestSer, ProblemSer, ProblemDiscussionSer, SubmissionSer, TestCaseSer, UserSer, \
-    TutorialSer, TutorialDiscussionSer
+    TutorialSer, TutorialDiscussionSer, ProblemSerOwner
 from judge.models import Contest, Problem, Submission, Tutorial, TestCase, ProblemDiscussion, TutorialDiscussion
 from users.models import User
 
@@ -37,7 +38,7 @@ class ContestViewSet(viewsets.ModelViewSet):
 
 class ProblemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
-        return Problem.objects.filter(hidden_till__lte=datetime.now())
+        return [problem for problem in Problem.objects.all() if not problem.lone_problem()]
 
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])

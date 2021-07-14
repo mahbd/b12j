@@ -54,14 +54,14 @@ def problem_changed_signal(instance: Problem, **kwargs):
     data = ProblemSer(instance).data
     data['target'] = 'problem'
     allowed_users = {instance.by}
-    if instance.hidden_till <= timezone.now():
+    if not instance.lone_problem():
         if instance.contest_set.all():
             for contest in instance.contest_set.all():
                 allowed_users = {*allowed_users, *list(contest.writers)}
         for user in allowed_users:
             send2user(user, data)
     else:
-        send2all_group(data)
+        send2user(instance.by, data)
 
 
 @receiver(post_save, sender=ProblemDiscussion, dispatch_uid="problem_discussion_changed_signal")

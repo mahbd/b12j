@@ -57,8 +57,12 @@ class Problem(models.Model):
     difficulty = models.IntegerField(default=1500)
     examples = models.IntegerField(default=1)
     notice = models.TextField(blank=True, null=True)
-    hidden_till = models.DateTimeField(default=timezone.now)
     date = models.DateTimeField(default=timezone.now, editable=False)
+
+    def lone_problem(self) -> bool:
+        if self.contestproblem_set.all():
+            return False
+        return True
 
     class Meta:
         ordering = ['difficulty', '-date']
