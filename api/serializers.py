@@ -49,17 +49,20 @@ class ContestSer(serializers.ModelSerializer):
         return [ContestProblemSer(cp).data for cp in ContestProblem.objects.filter(contest=contest)]
 
 
+class ProblemSerMeta:
+    model = Problem
+    fields = '__all__'
+    read_only_fields = ['by']
+
+
 class ProblemSer(serializers.ModelSerializer):
     test_cases = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = Problem
-        fields = '__all__'
+    class Meta(ProblemSerMeta):
         extra_kwargs = {
             'corCode': {'write_only': True},
             'checker': {'write_only': True},
         }
-        read_only_fields = ['by']
 
     # noinspection PyMethodMayBeStatic
     def get_test_cases(self, problem):
@@ -73,6 +76,11 @@ class ProblemSer(serializers.ModelSerializer):
         else:
             attrs = add_user_in_serializer(self, attrs)
         return attrs
+
+
+class ProblemSerOwner(ProblemSer):
+    class Meta(ProblemSerMeta):
+        pass
 
 
 class ProblemDiscussionSer(serializers.ModelSerializer):

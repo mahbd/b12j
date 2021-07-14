@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 
-from api.serializers import UserSer, ContestSer, ProblemSer, SubmissionSer, TutorialSer
+from api.serializers import UserSer, ContestSer, ProblemSer, SubmissionSer, TutorialSer, ProblemSerOwner
 from extra import validate_jwt
 from judge.models import Contest, Problem, Submission, Tutorial
 from users.models import User
@@ -41,7 +41,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if text_data_json.get('method'):
             text_data_json.pop('id_token')
-            message = await route_to_view(text_data_json)
+            message = await route_to_view(text_data_json, self.scope['user'])
             await self.send(text_data=json.dumps({'data': message}))
         elif text_data_json.get('data'):
             message = text_data_json['data']
@@ -95,13 +95,13 @@ def remove_channel(channel):
 
 
 @database_sync_to_async
-def route_to_view(data):
+def route_to_view(data, current_user):
     if data.get('target') == 'user':
         return user(data)
     elif data.get('target') == 'contest':
         return contest(data)
     elif data.get('target') == 'problem':
-        return problem(data)
+        return problem(data, current_user)
     elif data.get('target') == 'submission':
         return submission(data)
     elif data.get('target') == 'tutorial':
@@ -122,10 +122,14 @@ def contest(request):
         return {'target': False}
 
 
-def problem(request):
+def problem(request, current_user: User):
     if request['method'] == 'GET':
         if Problem.objects.filter(id=request['id']):
-            return dict(ProblemSer(Problem.objects.get(id=request['id'])).data) | request
+            p = Problem.objects.get(id=request['id'])
+            if current_user.is_staff or current_user.id == p.by_id:
+                return dict(ProblemSerOwner(p).data) | request
+            else:
+                return dict(ProblemSer(p).data) | request
         return {'target': False}
 
 
