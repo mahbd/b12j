@@ -38,6 +38,8 @@ class ContestViewSet(viewsets.ModelViewSet):
 
 class ProblemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
+        if self.request.method == 'PUT' or self.request.method == 'POST':
+            return Problem.objects.all()
         return [problem for problem in Problem.objects.all() if not problem.lone_problem()]
 
     @action(detail=False)
@@ -72,7 +74,10 @@ class ProblemViewSet(viewsets.ModelViewSet):
             return Response({'problems': ProblemSer(problems, many=True).data, 'contest_id': contest_id})
         raise ValidationError('Contest id must be present on parameter')
 
-    serializer_class = ProblemSer
+    def get_serializer_class(self):
+        if self.request.method == 'PUT' or self.request.method == 'POST':
+            return ProblemSerOwner
+        return ProblemSer
 
 
 class ProblemDiscussionViewSet(viewsets.ModelViewSet):
