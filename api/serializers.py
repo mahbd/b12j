@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -21,8 +20,6 @@ def add_user_in_serializer(self, attrs):
 
 
 def validate_start_end_contest(data):
-    if data['start_time'] >= datetime.now(tz=data['start_time'].tzinfo):
-        raise ValidationError('Shouldn\'t start in past')
     if data['start_time'] >= data['end_time']:
         raise ValidationError('Shouldn\'t start before end')
 
@@ -140,114 +137,3 @@ class TestCaseSer(serializers.ModelSerializer):
     class Meta:
         model = TestCase
         fields = '__all__'
-
-# def judge_connect(submission_id):
-#     """Send signal to judge to judge submission\nIf Fails it just print failure reason"""
-#     try:
-#         submission = Submission.objects.get(id=submission_id)
-#         try:
-#             problem = submission.problem
-#             data = {
-#                 "id": submission.id,
-#                 "title": problem.title,
-#                 "code": submission.code,
-#                 "language": submission.language,
-#                 "time_limit": problem.time_limit,
-#             }
-#             try:
-#                 res = requests.post(judge_url, data)
-#             except Exception as e:
-#                 print("Failed", submission_id, e)
-#                 submission.verdict = 'FJ'
-#                 submission.save()
-#                 return
-#             if res.status_code != 200:
-#                 try:
-#                     judge_url2 = "http://oj.mahbd.heliohost.org/judge/"
-#                 except Exception as e:
-#                     print("Failed", submission_id, e)
-#                     submission.verdict = 'FJ'
-#                     submission.save()
-#                     return
-#                 res = requests.get(f'{judge_url2}{submission_id}')
-#                 if res.status_code == 200:
-#                     data = res.json()
-#                     print("From Judge Response", data.get('status'))
-#                     submission = Submission.objects.get(id=submission_id)
-#                     submission.verdict = data.get('status')
-#                     submission.save()
-#                     return
-#             elif res.status_code != 200:
-#                 print("Failed", submission_id)
-#                 submission.verdict = 'FJ'
-#                 submission.save()
-#                 return
-#             status = res.json()['status']
-#             submission.verdict = status[0]
-#             if status[0] == 'CE':
-#                 submission.details = json.dumps([status[1], ['', '', '']])
-#             else:
-#                 submission.details = json.dumps([status[2], status[1]])
-#             submission.save()
-#         except Exception as e:
-#             print(e)
-#     except Submission.DoesNotExist:
-#         pass
-
-
-# class ProblemCommentSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ProblemComment
-#         fields = '__all__'
-#         read_only_fields = ['by']
-#
-#     def validate(self, attrs):
-#         if self.instance:
-#             pass
-#         else:
-#             attrs = add_user_in_serializer(self, attrs)
-#         return attrs
-#
-#
-# class TutorialCommentSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TutorialComment
-#         fields = '__all__'
-#         read_only_fields = ['by']
-#
-#     def validate(self, attrs):
-#         if self.instance:
-#             pass
-#         else:
-#             attrs = add_user_in_serializer(self, attrs)
-#         return attrs
-#
-#
-# class IsOwnerOrReadOnly(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         return request.user.username == obj.by.username
-#
-#
-# class IsStaffOrReadOnly(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         return request.user.is_staff
-#
-#
-# class IsPermittedReadProblem(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         contest = obj.contest
-#         start_time = contest.start_time
-#         if start_time <= datetime.now(tz=start_time.tzinfo):
-#             return True
-#         all_username = []
-#         for user in contest.hosts.all():
-#             all_username.append(user.username)
-#         for user in contest.testers.all():
-#             all_username.append(user.username)
-#         if request.user.username in all_username:
-#             return True
-#         return False

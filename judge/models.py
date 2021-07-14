@@ -8,8 +8,8 @@ from django.utils import timezone
 from users.models import User
 
 
-def validate_start_contest(start_time: datetime):
-    if start_time >= datetime.now(tz=start_time.tzinfo):
+def validate_past(start_time: datetime):
+    if start_time <= datetime.now(tz=start_time.tzinfo):
         raise ValidationError("Shouldn't start in past")
 
 
@@ -25,8 +25,8 @@ class Contest(models.Model):
     title = models.CharField(max_length=100, unique=True)
     text = models.TextField(blank=True, null=True)
     problems = models.ManyToManyField('Problem', through=ContestProblem)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_time = models.DateTimeField(validators=[validate_past])
+    end_time = models.DateTimeField(validators=[validate_past])
     date = models.DateTimeField(default=timezone.now, editable=False)
 
     def clean(self, *args, **kwargs):
