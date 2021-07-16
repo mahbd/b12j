@@ -114,7 +114,7 @@ class Submission(models.Model):
 
 class Tutorial(models.Model):
     by = models.ForeignKey(User, on_delete=models.CASCADE)
-    tags = ArrayField(models.CharField(max_length=31, blank=True), blank=True)
+    tags = ArrayField(models.CharField(max_length=31, blank=True, null=True), blank=True, null=True)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, blank=True, null=True)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=100)

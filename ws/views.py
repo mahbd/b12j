@@ -53,11 +53,11 @@ def contest_changed_signal(instance, **kwargs):
 def problem_changed_signal(instance: Problem, **kwargs):
     data = ProblemSer(instance).data
     data['target'] = 'problem'
-    allowed_users = {instance.by}
+    allowed_users = [instance.by]
     if not instance.lone_problem():
         if instance.contest_set.all():
             for contest in instance.contest_set.all():
-                allowed_users = {*allowed_users, *list(contest.writers)}
+                allowed_users = [*allowed_users, *[user for user in contest.writers.all()]]
         for user in allowed_users:
             send2user(user, data)
     else:

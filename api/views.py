@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.db.models import Q
-from django.http import JsonResponse
 from django.shortcuts import get_list_or_404
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action, permission_classes
@@ -27,7 +26,7 @@ class ContestViewSet(viewsets.ModelViewSet):
     @permission_classes([permissions.IsAuthenticated])
     def user_contests(self, request, *args):
         if request.user:
-            contests = ContestSer(Contest.objects.filter(writers=request.user), many=True).data
+            contests = ContestSer(Contest.objects.filter(writers=request.user)[:10], many=True).data
             return Response({"results": contests})
         return Response({"details": "User is not authenticated"}, status=301)
 
@@ -45,7 +44,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def user_problems(self, request, *args):
-        problems = ProblemSer(Problem.objects.filter(by=request.user), many=True).data
+        problems = ProblemSerOwner(Problem.objects.filter(by=request.user)[:10], many=True).data
         return Response({"results": problems, "name": "user_problems"})
 
     @action(detail=False)
@@ -88,24 +87,30 @@ class ProblemDiscussionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsPermittedDeleteDiscussion]
 
 
-class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
+class SubmissionViewSet(viewsets.ModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSer
 
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def user_submissions(self, request, *args):
-        submissions = SubmissionSer(Submission.objects.filter(by=request.user), many=True).data
+        submissions = SubmissionSer(Submission.objects.filter(by=request.user)[:20], many=True).data
         return Response({"results": submissions, "name": "user_submission"})
 
 
-class TutorialViewSet(viewsets.ReadOnlyModelViewSet):
+class TutorialViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.GET.get('contest_id'):
             return get_list_or_404(Tutorial, contest_id=self.request.GET['contest_id'], hidden_till__lt=datetime.now())
         if self.request.GET.get('problem_id'):
             return get_list_or_404(Tutorial, problem_id=self.request.GET['problem_id'], hidden_till__lt=datetime.now())
         return Tutorial.objects.filter(hidden_till__lt=datetime.now())
+
+    @action(detail=False)
+    @permission_classes([permissions.IsAuthenticated])
+    def user_tutorials(self, request, *args):
+        tutorials = TutorialSer(Tutorial.objects.filter(by=request.user)[:20], many=True).data
+        return Response({"results": tutorials, "name": "user_tutorials"})
 
     serializer_class = TutorialSer
 
