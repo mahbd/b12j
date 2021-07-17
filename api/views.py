@@ -44,7 +44,10 @@ class ProblemViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     @permission_classes([permissions.IsAuthenticated])
     def user_problems(self, request, *args):
-        problems = ProblemSerOwner(Problem.objects.filter(by=request.user)[:10], many=True).data
+        if request.GET.get('all'):
+            problems = ProblemSerOwner(Problem.objects.filter(by=request.user), many=True).data
+        else:
+            problems = ProblemSerOwner(Problem.objects.filter(by=request.user)[:10], many=True).data
         return Response({"results": problems, "name": "user_problems"})
 
     @action(detail=False)
