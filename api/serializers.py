@@ -38,6 +38,7 @@ class ContestProblemSer(serializers.ModelSerializer):
 
 class ContestSer(serializers.ModelSerializer):
     problems = serializers.SerializerMethodField()
+    tutorials = serializers.SerializerMethodField()
 
     class Meta:
         model = Contest
@@ -47,6 +48,10 @@ class ContestSer(serializers.ModelSerializer):
     # noinspection PyMethodMayBeStatic
     def get_problems(self, contest):
         return [ContestProblemSer(cp).data for cp in ContestProblem.objects.filter(contest=contest)]
+
+    # noinspection PyMethodMayBeStatic
+    def get_tutorials(self, contest):
+        return [tutorial.id for tutorial in Tutorial.objects.filter(contest=contest)]
 
 
 class ProblemSerMeta:

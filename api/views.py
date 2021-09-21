@@ -7,7 +7,6 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-# from api.serializers import, TutorialCommentSerializer
 from api.permissions import IsPermittedEditContest, IsPermittedAddContest, IsPermittedDeleteDiscussion
 from api.serializers import ContestSer, ProblemSer, ProblemDiscussionSer, SubmissionSer, TestCaseSer, UserSer, \
     TutorialSer, TutorialDiscussionSer, ProblemSerOwner
@@ -22,8 +21,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ContestViewSet(viewsets.ModelViewSet):
-    @action(detail=False)
-    @permission_classes([permissions.IsAuthenticated])
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def user_contests(self, request, *args):
         if request.user:
             contests = ContestSer(Contest.objects.filter(writers=request.user)[:10], many=True).data
@@ -41,8 +39,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
             return Problem.objects.all()
         return [problem for problem in Problem.objects.all() if not problem.lone_problem()]
 
-    @action(detail=False)
-    @permission_classes([permissions.IsAuthenticated])
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def user_problems(self, request, *args):
         if request.GET.get('all'):
             problems = ProblemSerOwner(Problem.objects.filter(by=request.user), many=True).data
@@ -50,36 +47,24 @@ class ProblemViewSet(viewsets.ModelViewSet):
             problems = ProblemSerOwner(Problem.objects.filter(by=request.user)[:10], many=True).data
         return Response({"results": problems, "name": "user_problems"})
 
-    @action(detail=False)
-    @permission_classes([permissions.IsAuthenticated])
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def test_problems(self, request, *args):
         q = Q(contest__writers=request.user) | Q(contest__testers=request.user)
         problems = ProblemSer(Problem.objects.filter(q, contest__start_time__gt=datetime.now()), many=True).data
         return Response({"results": problems, "name": "test_problems"})
 
-    @action(detail=False)
-    @permission_classes([permissions.IsAuthenticated])
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def solved_problems(self, request, *args):
         problems = ProblemSer(Problem.objects.filter(submission__verdict='AC', submission__by=request.user),
                               many=True).data
         return Response({"results": problems, "name": "solved_problems"})
 
-    @action(detail=False)
-    def contest_problems(self, request, *args):
-        contest_id = request.GET.get('contest_id')
-        if contest_id:
-            try:
-                problems = Problem.objects.filter(contestproblem__contest_id=contest_id)
-            except Exception as e:
-                print(e)
-                raise ValidationError('Internal error')
-            return Response({'problems': ProblemSer(problems, many=True).data, 'contest_id': contest_id})
-        raise ValidationError('Contest id must be present on parameter')
-
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'POST':
             return ProblemSerOwner
         return ProblemSer
+
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class ProblemDiscussionViewSet(viewsets.ModelViewSet):
