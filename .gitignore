@@ -6,3 +6,5 @@ __pycache__
 /b12j-front/node_modules/
 /api/http-client.private.env.json
 /myproject.sock
+/static
+/staticfiles
