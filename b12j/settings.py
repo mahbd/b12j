@@ -74,8 +74,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'b12j',
-        'USER': 'b12j_admin',
-        'PASSWORD': os.environ.get('B12J_DB_PASS'),
+        'USER': os.environ.get('DB_ADMIN'),
+        'PASSWORD': os.environ.get('DB_PASS'),
         'HOST': '127.0.0.1',
         'PORT': '5432',
     },
