@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
-        fields = ('username', 'email', 'first_name', 'last_name', 'password')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password')
 
 
 class UserCreatePasswordRetypeSerializer(BaseUserCreatePasswordRetypeSerializer, UserCreateSerializer):

@@ -3,11 +3,7 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
-import django_heroku
 from corsheaders.defaults import default_headers
-
-
-TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = os.path.dirname(__file__)
@@ -77,6 +73,13 @@ DATABASES = {
         # 'PORT': '5432',
     },
 }
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'test.sqlite3',
+        }
+    }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -161,8 +164,8 @@ DJOSER = {
     'ACTIVATION_URL': 'users/activate/{uid}/{token}/',
     'SEND_ACTIVATION_EMAIL': True,
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
-    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['https://superdjauth.herokuapp.com/google',
-                                          'https://superdjauth.herokuapp.com/facebook'],
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['https://b12j.ga/google',
+                                          'https://b12j.ga/facebook'],
     'SERIALIZERS': {
         # 'user_create': 'users.serializers.UserCreateSerializer',
         'user_create_password_retype': 'users.serializers.UserCreatePasswordRetypeSerializer',
@@ -171,8 +174,8 @@ DJOSER = {
         # 'user_delete': 'djoser.serializers.UserDeleteSerializer',
     }
 }
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '824689539090-uf5v092tc5idoj7situdiipfi1c75o57.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'OBv9tUGrxoeSBHrdo700v2xV'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '704405925886-dbk5n1mo85kdq96h7canvkul40if81ea.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '0f8crH11JaO71PgOS6GoIKK6'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email',
                                    'https://www.googleapis.com/auth/userinfo.profile', 'openid']
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
@@ -194,5 +197,3 @@ CORS_ALLOW_HEADERS = list(default_headers) + [  #
 
 # Constants
 EMAIL_REGEX = r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
-
-django_heroku.settings(locals())

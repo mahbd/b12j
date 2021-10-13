@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+    <script>
+    window.location = 'https://accounts.google.com/o/oauth2/auth?client_id=704405925886-dbk5n1mo85kdq96h7canvkul40if81ea.apps.googleusercontent.com&redirect_uri=https://b12j.ga/google&state=NnvRKJ3UPYhzui4bLKXXqi8v8PQOlOv0&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile+openid+openid+email+profile'
+    </script>
+{% endblock content %}

@@ -36,8 +36,14 @@ class ContestSerializer(serializers.ModelSerializer):
                   'testers', 'title', 'user', 'writers')
 
 
+class TestCaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestCase
+        fields = '__all__'
+
+
 class ProblemSerializer(serializers.ModelSerializer):
-    test_cases = serializers.SerializerMethodField(read_only=True)
+    test_cases = TestCaseSerializer(many=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
 
     class Meta:
@@ -45,9 +51,18 @@ class ProblemSerializer(serializers.ModelSerializer):
         exclude = ('created_at', 'checker_function', 'checker_func_lang',
                    'correct_code', 'correct_lang')
 
-    # noinspection PyMethodMayBeStatic
-    def get_test_cases(self, problem: Problem) -> dict:
-        return TestCaseSerializer(problem.testcase_set.all(), many=True).data
+    def create(self, validated_data):
+        options = validated_data.pop('test_cases', [])
+        instance = TestCase.objects.create(**validated_data)
+        for task_data in options:
+            task = TestCase.objects.create(**task_data)
+            instance.options.add(task)
+        return instance
+
+    def update(self, instance, validated_data):
+        if hasattr(validated_data, 'test_cases'):
+            validated_data.pop('test_cases')
+        return super().update(instance, validated_data)
 
 
 class ProblemOwnerSerializer(ProblemSerializer):
@@ -76,10 +91,4 @@ class TutorialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tutorial
-        fields = '__all__'
-
-
-class TestCaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TestCase
         fields = '__all__'

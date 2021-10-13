@@ -1,26 +1,18 @@
 import json
 import string
-from random import choices, randint
+from random import randint
 
 from django.contrib.auth import login
 from django.db.models import Q
 from django.http import JsonResponse, QueryDict, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-from b12j.settings import EMAIL_HOST_USER
 from .backends import is_valid_jwt_header
-from .models import User, UserToken
-
-
-def email_verification(user: User, host):
-    token = ''.join(choices(string.ascii_letters, k=15))
-    UserToken.objects.create(user=user, token=token)
-    text = f'Please verify your email here. {host}/users/verify-email/{token}'
-    user.email_user('Confirm Your email', text, EMAIL_HOST_USER)
+from .models import User
 
 
 def create_user(request):
@@ -66,13 +58,6 @@ def login_google_auth_response(payload: dict):
                                     first_name=first_name, last_name=last_name)
 
 
-def verify_email(request, token):
-    token_obj = get_object_or_404(UserToken, token=token)
-    token_obj.user.is_active = True
-    token_obj.user.save()
-    return JsonResponse({'verified': True})
-
-
 def login_user_local(request, client_data):
     username = client_data.get('username')
     email = client_data.get('email')
@@ -104,3 +89,7 @@ def activate_user(request, uid, token):
         return HttpResponse("Your account activated successfully")
     print(response.content)
     return HttpResponse("Failed to activate your account. Try again later.")
+
+
+def login_google(request):
+    return render(request, 'login_google.html')
