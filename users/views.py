@@ -1,18 +1,17 @@
 import json
 import string
-from datetime import timedelta
 from random import choices, randint
 
 from django.contrib.auth import login
 from django.db.models import Q
-from django.http import JsonResponse, QueryDict
+from django.http import JsonResponse, QueryDict, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from b12j.settings import EMAIL_HOST_USER
-from extra import jwt_writer
-from google_auth_helper import verify_token
 from .backends import is_valid_jwt_header
 from .models import User, UserToken
 
@@ -22,23 +21,6 @@ def email_verification(user: User, host):
     UserToken.objects.create(user=user, token=token)
     text = f'Please verify your email here. {host}/users/verify-email/{token}'
     user.email_user('Confirm Your email', text, EMAIL_HOST_USER)
-
-
-def serialize_user(user: User):
-    data = {
-        'email': user.email,
-        'expire': str(timezone.now() + timedelta(days=7)),
-        'first_name': user.first_name,
-        'full_name': user.get_full_name() or user.username,
-        'id': user.id,
-        'is_active': user.is_active,
-        'is_staff': user.is_staff,
-        'is_superuser': user.is_superuser,
-        'last_name': user.last_name,
-        'username': user.username,
-    }
-    jwt_str = jwt_writer(**data)
-    return jwt_str
 
 
 def create_user(request):
@@ -104,35 +86,6 @@ def login_user_local(request, client_data):
     return user
 
 
-def login_user(request):
-    try:
-        client_data = json.loads(request.body)
-    except json.JSONDecodeError:
-        post = dict(request.POST)
-        if post.get('username') or post.get('email') or post.get('idToken'):
-            client_data = {
-                'email': post.get('email')[0] if type(post.get('email')) == list else post.get('email'),
-                'username': post.get('username')[0] if type(post.get('username')) == list else post.get('username'),
-                'password': post.get('password')[0] if type(post.get('password')) == list else post.get('password'),
-                'idToken': post.get('idToken')[0] if type(post.get('idToken')) == list else post.get('idToken'),
-            }
-        else:
-            return JsonResponse({"errors": "No data provided"}, status=400)
-    user = login_user_local(request, client_data)
-    if not user and client_data.get('idToken'):
-        id_token = client_data.get('idToken')
-        payload = verify_token(id_token)
-        if payload is None:
-            return JsonResponse({"errors": "Couldn't verify idToken"}, status=400)
-        if not payload['email_verified']:
-            return JsonResponse({"errors": "Please verify email"})
-        user = login_google_auth_response(payload)
-    if not user:
-        return JsonResponse({"errors": "Couldn't login"}, status=400)
-    jwt_str = serialize_user(user)
-    return JsonResponse({"jwt": jwt_str})
-
-
 def login_check(request):
     user = is_valid_jwt_header(request)
     if user:
@@ -142,3 +95,12 @@ def login_check(request):
     else:
         logged = False
     return JsonResponse({"status": logged})
+
+
+def activate_user(request, uid, token):
+    c = Client()
+    response = c.post(reverse('user-activation'), data={'uid': uid, 'token': token})
+    if response.status_code == 204:
+        return HttpResponse("Your account activated successfully")
+    print(response.content)
+    return HttpResponse("Failed to activate your account. Try again later.")

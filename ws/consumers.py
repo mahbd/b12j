@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 
-from api.serializers import UserSer, ContestSer, ProblemSer, SubmissionSer, TutorialSer, ProblemSerOwner
+from api.serializers import UserSerializer, ContestSerializer, ProblemSerializer, SubmissionSerializer, TutorialSerializer, ProblemOwnerSerializer
 from extra import validate_jwt
 from judge.models import Contest, Problem, Submission, Tutorial
 from users.models import User
@@ -111,14 +111,14 @@ def route_to_view(data, current_user):
 def user(request):
     if request['method'] == 'GET':
         if User.objects.filter(id=request['id']):
-            return dict(UserSer(User.objects.get(id=request['id'])).data) | request
+            return dict(UserSerializer(User.objects.get(id=request['id'])).data) | request
         return {'target': False}
 
 
 def contest(request):
     if request['method'] == 'GET':
         if Contest.objects.filter(id=request['id']):
-            return dict(ContestSer(Contest.objects.get(id=request['id'])).data) | request
+            return dict(ContestSerializer(Contest.objects.get(id=request['id'])).data) | request
         return {'target': False}
 
 
@@ -127,20 +127,20 @@ def problem(request, current_user: User):
         if Problem.objects.filter(id=request['id']):
             p = Problem.objects.get(id=request['id'])
             if current_user.is_staff or current_user.id == p.by_id:
-                return dict(ProblemSerOwner(p).data) | request
+                return dict(ProblemOwnerSerializer(p).data) | request
             else:
-                return dict(ProblemSer(p).data) | request
+                return dict(ProblemSerializer(p).data) | request
         return {'target': False}
 
 
 def submission(request):
     if request['method'] == 'GET':
         if Submission.objects.filter(id=request['id']):
-            return dict(SubmissionSer(Submission.objects.get(id=request['id'])).data) | request
+            return dict(SubmissionSerializer(Submission.objects.get(id=request['id'])).data) | request
         return {'target': False}
 
 
 def tutorial(request):
     if request['method'] == 'GET':
         if Tutorial.objects.filter(id=request['id']):
-            return dict(TutorialSer(Tutorial.objects.get(id=request['id'])).data) | request
+            return dict(TutorialSerializer(Tutorial.objects.get(id=request['id'])).data) | request

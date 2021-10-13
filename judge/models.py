@@ -17,25 +17,20 @@ class ContestProblem(models.Model):
     contest = models.ForeignKey('Contest', on_delete=models.CASCADE)
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE)
     problem_char = models.CharField(default='A', max_length=3)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
+# TODO: Start and end time validator
 class Contest(models.Model):
-    writers = models.ManyToManyField(User, related_name='contest_host_user')
-    testers = models.ManyToManyField(User)
-    title = models.CharField(max_length=100, unique=True)
-    text = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    end_time = models.DateTimeField(default=timezone.now)
     problems = models.ManyToManyField('Problem', through=ContestProblem)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    date = models.DateTimeField(default=timezone.now, editable=False)
-
-    def clean(self, *args, **kwargs):
-        if self.start_time >= self.end_time:
-            raise ValidationError("Shouldn't start before end")
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super(Contest, self).save(*args, **kwargs)
+    start_time = models.DateTimeField(default=timezone.now)
+    testers = models.ManyToManyField(User, related_name='contest_tester_set')
+    title = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    writers = models.ManyToManyField(User, related_name='contest_writer_set')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-start_time']
@@ -45,97 +40,80 @@ class Contest(models.Model):
 
 
 class Problem(models.Model):
-    by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=100, unique=True)
-    text = models.TextField()
-    inTerms = models.TextField()
-    outTerms = models.TextField()
-    corCode = models.TextField()
-    checker = models.TextField(null=True, blank=True)
-    time_limit = models.IntegerField(default=1)
-    memory_limit = models.IntegerField(default=256)
+    checker_function = models.TextField(null=True, blank=True)
+    checker_func_lang = models.TextField(null=True, blank=True)
+    correct_code = models.TextField(blank=True, null=True)
+    correct_lang = models.TextField(blank=True, null=True)
+    description = models.TextField()
     difficulty = models.IntegerField(default=1500)
-    examples = models.IntegerField(default=1)
+    example_number = models.IntegerField(default=1)
+    hidden_till = models.DateTimeField(default=timezone.now)
+    input_terms = models.TextField()
+    memory_limit = models.IntegerField(default=256)
     notice = models.TextField(blank=True, null=True)
-    date = models.DateTimeField(default=timezone.now, editable=False)
+    output_terms = models.TextField()
+    test_cases = models.ManyToManyField('TestCase')
+    time_limit = models.IntegerField(default=1)
+    title = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def lone_problem(self) -> bool:
+    def is_unused(self) -> bool:
         if self.contestproblem_set.all():
             return False
         return True
 
     class Meta:
-        ordering = ['difficulty', '-date']
+        ordering = ['difficulty', '-created_at']
 
     def __str__(self):
         return self.title
 
 
-class ProblemDiscussion(models.Model):
-    by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    parent = models.ForeignKey('ProblemDiscussion', blank=True, null=True, on_delete=models.CASCADE)
+class Comment(models.Model):
+    parent = models.ForeignKey('Comment', on_delete=models.CASCADE, blank=True, null=True)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
     text = models.TextField()
-    date = models.DateTimeField(default=timezone.now)
+    tutorial = models.ForeignKey('Tutorial', on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.text[:20]
 
-    class Meta:
-        ordering = ['date']
-
 
 class TestCase(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     inputs = models.TextField()
     output = models.TextField(blank=True, null=True)
-    date = models.DateTimeField(default=timezone.now, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'problem: {self.problem.title} input: {self.inputs[:10]}'
+        return f'input: {self.inputs[:10]}, created_at: {self.created_at}'
 
 
 class Submission(models.Model):
-    by = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, null=True, on_delete=models.SET_NULL)
     code = models.TextField()
     language = models.CharField(max_length=10, choices=(('python', 'Python3'), ('c_cpp', 'C/C++')))
     verdict = models.CharField(max_length=5, default='PJ')
     details = models.TextField(blank=True, null=True)
-    date = models.DateTimeField(default=timezone.now, editable=False)
-
-    class Meta:
-        ordering = ['-date']
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'by: {self.by.username}\tverdict: {self.verdict}\tproblem:{self.problem.title}'
+        return f'by: {self.user.username}\tverdict: {self.verdict}\tproblem:{self.problem.title}'
 
 
 class Tutorial(models.Model):
-    by = models.ForeignKey(User, on_delete=models.CASCADE)
-    tags = ArrayField(models.CharField(max_length=31, blank=True, null=True), blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, blank=True, null=True)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=100)
     text = models.TextField()
     hidden_till = models.DateTimeField(default=timezone.now)
-    date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-date']
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
-
-
-class TutorialDiscussion(models.Model):
-    by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    tutorial = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    parent = models.ForeignKey('TutorialDiscussion', blank=True, null=True, on_delete=models.CASCADE)
-    text = models.TextField()
-    date = models.DateTimeField(default=timezone.now)
-
-
-class JudgeQueue(models.Model):
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)

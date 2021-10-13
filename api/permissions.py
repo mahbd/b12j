@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from rest_framework.permissions import SAFE_METHODS
 
 
 class IsPermittedEditContest(permissions.BasePermission):
@@ -13,13 +14,11 @@ class IsPermittedEditContest(permissions.BasePermission):
         return False
 
 
-class IsPermittedDeleteDiscussion(permissions.BasePermission):
+class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.method == 'DELETE':
-            if request.user.id == obj.by.id:
-                return True
-            return False
-        return True
+        return bool(request.method in SAFE_METHODS or
+                    request.user and
+                    (obj.user_id == request.user.id or request.user.is_staff))
 
 
 class IsPermittedAddContest(permissions.BasePermission):

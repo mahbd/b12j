@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Contest, ContestProblem, Problem, ProblemDiscussion, Submission, TestCase, Tutorial, \
-    TutorialDiscussion
+from .models import Contest, ContestProblem, Problem, Comment, Submission, TestCase, Tutorial
 
 
 @admin.register(Contest)
@@ -16,19 +15,19 @@ class ContestProblemAdmin(admin.ModelAdmin):
 
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
-    search_fields = ['title', 'contest__title', 'by__first_name', 'by__last_name', 'text']
-    list_display = ['title', 'date']
+    search_fields = ['title', 'contest__title', 'user__first_name', 'user__last_name', 'text']
+    list_display = ['title', 'created_at']
 
 
-@admin.register(ProblemDiscussion)
+@admin.register(Comment)
 class ProblemDiscussionAdmin(admin.ModelAdmin):
-    search_fields = ['by__first_name', 'by__last_name', 'problem_title']
-    list_display = ['text', 'date', 'by', 'problem']
+    search_fields = ['user__first_name', 'user__last_name', 'problem_title']
+    list_display = ['text', 'created_at', 'user', 'problem']
 
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    search_fields = ['problem__title', 'contest__title', 'by__first_name', 'by__last_name']
+    search_fields = ['problem__title', 'contest__title', 'user__first_name', 'user__last_name']
 
 
 @admin.register(TestCase)
@@ -38,9 +37,4 @@ class TestCaseAdmin(admin.ModelAdmin):
 
 @admin.register(Tutorial)
 class TutorialAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(TutorialDiscussion)
-class TutorialDiscussionAdmin(admin.ModelAdmin):
     pass

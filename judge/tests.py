@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from judge.models import Contest, Problem, ProblemDiscussion
+from judge.models import Contest, Problem, Comment
 from users.models import User
 
 
@@ -17,6 +17,6 @@ def create_problem(by, title, text, in_terms, out_terms, cor_code):
 
 
 def create_problem_discussion(by: User, problem: Problem,
-                              parent: ProblemDiscussion, text):
-    return ProblemDiscussion.objects.create(by=by, problem=problem,
-                                            parent=parent, text=text)
+                              parent: Comment, text):
+    return Comment.objects.create(by=by, problem=problem,
+                                  parent=parent, text=text)

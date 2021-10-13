@@ -1,25 +1,18 @@
 import os
 import sys
+from datetime import timedelta
 from pathlib import Path
 
-import django.db.models
 import django_heroku
 from corsheaders.defaults import default_headers
 
-from .settings_helper import link_to_json_file
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = os.path.dirname(__file__)
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'FfjdkslajfLKJFdslkafjlk454')
 DEBUG = os.environ.get('DEBUG', True)
-
-if os.environ.get('FIREBASE_ADMIN'):
-    firebase_admin_path = link_to_json_file(str(BASE_DIR) + '/firebase_admin.json', os.environ.get('FIREBASE_ADMIN'))
-else:
-    firebase_admin_path = str(BASE_DIR) + '/firebase_admin.json'
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = firebase_admin_path
 
 ALLOWED_HOSTS = ['b12j.herokuapp.com', '127.0.0.1']
 
@@ -30,8 +23,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
+    'rest_framework_simplejwt',
     'corsheaders',
     'rest_framework',
+    'djoser',
     'channels',
     'users',
     'ws',
@@ -40,6 +36,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -72,12 +69,12 @@ WSGI_APPLICATION = 'b12j.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'djongo',
         'NAME': 'b12j',
-        'USER': os.environ.get('DB_ADMIN'),
-        'PASSWORD': os.environ.get('DB_PASS'),
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        # 'USER': os.environ.get('DB_ADMIN', 'admin'),
+        # 'PASSWORD': os.environ.get('DB_PASS', '1234'),
+        'HOST': 'mongodb://localhost:27017/b12j',
+        # 'PORT': '5432',
     },
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -122,7 +119,13 @@ EMAIL_PORT = 587  #
 EMAIL_USE_TLS = True  #
 #####################################################################
 AUTH_USER_MODEL = 'users.User'  #
-AUTHENTICATION_BACKENDS = ['users.backends.ModelBackendWithJWT']  #
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend'
+)
+
 #####################################################################
 ASGI_APPLICATION = 'b12j.routing.application'  #
 CHANNEL_LAYERS = {  #
@@ -133,13 +136,56 @@ CHANNEL_LAYERS = {  #
 #####################################################################
 REST_FRAMEWORK = {  #
     'DEFAULT_AUTHENTICATION_CLASSES': [  #
-        'rest_framework.authentication.SessionAuthentication',  #
-        'users.backends.RestBackendWithJWT',  #
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],  #
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 30,  #
 }  #
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_TOKEN_CLASSES': (
+        'rest_framework_simplejwt.tokens.AccessToken',
+    )
+}
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+    'SEND_CONFIRMATION_EMAIL': True,
+    'SET_PASSWORD_RETYPE': True,
+    'USERNAME_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': 'users/activate/{uid}/{token}/',
+    'SEND_ACTIVATION_EMAIL': True,
+    'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['https://superdjauth.herokuapp.com/google',
+                                          'https://superdjauth.herokuapp.com/facebook'],
+    'SERIALIZERS': {
+        # 'user_create': 'users.serializers.UserCreateSerializer',
+        'user_create_password_retype': 'users.serializers.UserCreatePasswordRetypeSerializer',
+        # 'user': 'users.serializers.UserCreateSerializer',
+        # 'current_user': 'users.serializers.UserCreateSerializer',
+        # 'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    }
+}
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '824689539090-uf5v092tc5idoj7situdiipfi1c75o57.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'OBv9tUGrxoeSBHrdo700v2xV'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email',
+                                   'https://www.googleapis.com/auth/userinfo.profile', 'openid']
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+
+SOCIAL_AUTH_FACEBOOK_KEY = '874103216697597'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'd2c0fd6bd749b2e00360cb559e46fd5a'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'email, first_name, last_name'
+}
 #####################################################################
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True  #
 CORS_ALLOW_HEADERS = list(default_headers) + [  #
     'x-auth-token', 'token', 'username', 'password'  #

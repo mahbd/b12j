@@ -56,7 +56,7 @@ def judge_submission(instance: Submission, created, **kwargs):
 @receiver(post_save, sender=TestCase)
 def process_test_case(instance: TestCase, created, **kwargs):
     if created:
-        code = instance.problem.corCode
+        code = instance.problem.correct_code
         time_limit = instance.problem.time_limit
         test_text = instance.inputs
         data = {
@@ -84,7 +84,7 @@ def _calculate_standing(submission_list):
     final_info = []
     for submission in submission_list:
         info[f'{submission.by_id}___{submission.problem_id}'] = (
-                submission.date - submission.contest.start_time).total_seconds()
+                submission.created_at - submission.contest.start_time).total_seconds()
         problem_count[str(submission.by_id)] = 0
         time_count[str(submission.by_id)] = 0
     for key in info:
@@ -101,7 +101,7 @@ def standing(request, contest_id):
     submissions = Submission.objects.filter(contest_id=contest_id, verdict='AC')
     during_contest, after_contest = [], []
     for submission in submissions:
-        if contest.end_time >= submission.date >= contest.start_time:
+        if contest.end_time >= submission.created_at >= contest.start_time:
             during_contest.append(submission)
         else:
             after_contest.append(submission)
