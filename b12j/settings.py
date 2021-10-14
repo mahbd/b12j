@@ -4,6 +4,16 @@ from datetime import timedelta
 from pathlib import Path
 
 from corsheaders.defaults import default_headers, default_methods
+from djongo.base import DatabaseWrapper
+from djongo.operations import DatabaseOperations
+
+class PatchedDatabaseOperations(DatabaseOperations):
+
+    def conditional_expression_supported_in_where_clause(self, expression):
+        return False
+
+
+DatabaseWrapper.ops_class = PatchedDatabaseOperations
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = os.path.dirname(__file__)
@@ -19,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'social_django',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -33,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -183,9 +195,9 @@ DJOSER = {
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['https://b12j.ga/google',
                                           'https://b12j.ga/facebook'],
     'SERIALIZERS': {
-        # 'user_create': 'users.serializers.UserCreateSerializer',
+        'user_create': 'users.serializers.UserCreateSerializer',
         'user_create_password_retype': 'users.serializers.UserCreatePasswordRetypeSerializer',
-        # 'user': 'users.serializers.UserCreateSerializer',
+        'user': 'users.serializers.UserCreateSerializer',
         # 'current_user': 'users.serializers.UserCreateSerializer',
         # 'user_delete': 'djoser.serializers.UserDeleteSerializer',
     }
@@ -212,3 +224,9 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 
 # Constants
 EMAIL_REGEX = r'^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
+
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    # ...
+]

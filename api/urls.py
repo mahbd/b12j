@@ -1,5 +1,8 @@
+from django.conf.urls import url
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from . import views
 from judge import views as judge_view
@@ -13,7 +16,25 @@ router.register(r'tutorials', views.TutorialViewSet, 'tutorials')
 router.register(r'test_cases', views.TestCaseViewSet, 'test_cases')
 router.register(r'users', views.UserViewSet, 'users')
 
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['name'] = user.get_full_name() or user.username
+        return token
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
 urlpatterns = [
+    path('auth/jwt/create/', MyTokenObtainPairView.as_view(),
+         name='token_obtain_pair'),
+    url(r'^auth/', include('djoser.urls')),
+    url(r'^auth/', include('djoser.urls.jwt')),
+    url(r'^auth/', include('djoser.social.urls')),
     path('', include(router.urls)),
     path('standing/<contest_id>', judge_view.standing),
 ]

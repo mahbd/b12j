@@ -93,3 +93,8 @@ def activate_user(request, uid, token):
 
 def login_google(request):
     return render(request, 'login_google.html')
+
+
+def sql_check(request):
+    User.objects.filter(is_staff=True, username='mah1').first()
+    return render(request, 'blank.html')
