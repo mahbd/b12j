@@ -14,7 +14,6 @@ router.register(r'problems', views.ProblemViewSet, 'problems')
 router.register(r'submissions', views.SubmissionViewSet, 'submissions')
 router.register(r'tutorials', views.TutorialViewSet, 'tutorials')
 router.register(r'test_cases', views.TestCaseViewSet, 'test_cases')
-router.register(r'users', views.UserViewSet, 'users')
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -22,6 +21,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token['name'] = user.get_full_name() or user.username
+        token['is_staff'] = user.is_staff
+        token['is_superuser'] = user.is_superuser
         return token
 
 

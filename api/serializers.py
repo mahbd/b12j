@@ -32,7 +32,7 @@ class ContestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contest
-        fields = ('description', 'end_time', 'problems', 'start_time',
+        fields = ('description', 'end_time', 'id', 'problems', 'start_time',
                   'testers', 'title', 'user', 'writers')
 
 
@@ -79,7 +79,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
+    problem_title = serializers.SerializerMethodField()
     user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
+    # noinspection PyMethodMayBeStatic
+    def get_problem_title(self, submission: Submission) -> str:
+        return submission.problem.title
 
     class Meta:
         model = Submission

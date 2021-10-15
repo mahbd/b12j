@@ -53,15 +53,18 @@ def contest_changed_signal(instance, **kwargs):
 def problem_changed_signal(instance: Problem, **kwargs):
     data = ProblemSerializer(instance).data
     data['target'] = 'problem'
-    allowed_users = [instance.user]
-    if not instance.is_unused():
-        if instance.contest_set.all():
-            for contest in instance.contest_set.all():
-                allowed_users = [*allowed_users, *[user for user in contest.writers.all()]]
-        for user in allowed_users:
-            send2user(user, data)
+    if instance.hidden_till > timezone.now():
+        allowed_users = [instance.user]
+        if not instance.is_unused():
+            if instance.contest_set.all():
+                for contest in instance.contest_set.all():
+                    allowed_users = [*allowed_users, *[user for user in contest.writers.all()]]
+            for user in allowed_users:
+                send2user(user, data)
+        else:
+            send2user(instance.user, data)
     else:
-        send2user(instance.user, data)
+        send2all_group(data)
 
 
 @receiver(post_save, sender=Comment, dispatch_uid="problem_discussion_changed_signal")

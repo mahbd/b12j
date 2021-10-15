@@ -1,11 +1,18 @@
 from datetime import datetime
 
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
 from users.models import User
+
+
+LANGUAGE_PYTHON = 'python'
+LANGUAGE_CPP = 'c_cpp'
+LANGUAGE_CHOICES = (
+    (LANGUAGE_CPP, 'C/C++'),
+    (LANGUAGE_PYTHON, 'Python')
+)
 
 
 def validate_past(start_time: datetime):
@@ -41,9 +48,9 @@ class Contest(models.Model):
 
 class Problem(models.Model):
     checker_function = models.TextField(null=True, blank=True)
-    checker_func_lang = models.TextField(null=True, blank=True)
+    checker_func_lang = models.CharField(max_length=20, choices=LANGUAGE_CHOICES, null=True, blank=True)
     correct_code = models.TextField(blank=True, null=True)
-    correct_lang = models.TextField(blank=True, null=True)
+    correct_lang = models.CharField(max_length=20, choices=LANGUAGE_CHOICES, blank=True, null=True)
     description = models.TextField()
     difficulty = models.IntegerField(default=1500)
     example_number = models.IntegerField(default=1)
@@ -52,7 +59,7 @@ class Problem(models.Model):
     memory_limit = models.IntegerField(default=256)
     notice = models.TextField(blank=True, null=True)
     output_terms = models.TextField()
-    test_cases = models.ManyToManyField('TestCase')
+    test_cases = models.ManyToManyField('TestCase', blank=True, null=True   )
     time_limit = models.IntegerField(default=1)
     title = models.CharField(max_length=100, unique=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
@@ -97,7 +104,7 @@ class Submission(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, null=True, on_delete=models.SET_NULL)
     code = models.TextField()
-    language = models.CharField(max_length=10, choices=(('python', 'Python3'), ('c_cpp', 'C/C++')))
+    language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES)
     verdict = models.CharField(max_length=5, default='PJ')
     details = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

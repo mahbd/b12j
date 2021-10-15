@@ -124,9 +124,9 @@ def contest(request):
 
 def problem(request, current_user: User):
     if request['method'] == 'GET':
-        if Problem.objects.filter(id=request['id']):
+        if Problem.objects.filter(pk=request['id']).exists():
             p = Problem.objects.get(id=request['id'])
-            if current_user.is_staff or current_user.id == p.by_id:
+            if current_user.is_staff or current_user.id == p.user_id:
                 return dict(ProblemOwnerSerializer(p).data) | request
             else:
                 return dict(ProblemSerializer(p).data) | request
