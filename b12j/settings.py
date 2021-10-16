@@ -132,8 +132,7 @@ USE_TZ = True
 MEDIA_ROOT = os.path.join(PROJECT_DIR, str('media/'))  #
 MEDIA_URL = '/media/'  #
 STATIC_URL = '/static/'  #
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'b12j-front', 'build', 'static'),)
-STATIC_ROOT = os.path.join(PROJECT_DIR, str('static/'))  #
+STATIC_ROOT = os.path.join(BASE_DIR, str('static/'))  #
 LOGIN_URL = '/users/login/'  #
 #####################################################################
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  #
