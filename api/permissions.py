@@ -2,23 +2,25 @@ from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 
 
-class IsPermittedEditContest(permissions.BasePermission):
+class HasContestReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.method in [*SAFE_METHODS, 'PUT', 'PATCH'] or
+                    (request.user and request.user.is_staff))
+
     def has_object_permission(self, request, view, obj):
-        if request.method in [*permissions.SAFE_METHODS, 'POST']:
-            return True
-        if not request.user.is_active:
-            return False
-        if request.user.is_staff or \
-                request.user.id in [user.id for user in (list(obj.writers.all()) + list(obj.testers.all()))]:
+        related_users = [user.id for user in obj.writers.all()]
+        if request.method in ['PUT', 'PATCH']:
+            return bool(request.user and (request.user.is_staff or request.user.id in related_users))
+        if request.method in [permissions.SAFE_METHODS,]:
             return True
         return False
 
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
+class IsOwnerOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     def has_object_permission(self, request, view, obj):
+        user = request.user
         return bool(request.method in SAFE_METHODS or
-                    request.user and
-                    (obj.user_id == request.user.id or request.user.is_staff))
+                    user and ((obj.user and obj.user.id == user.id) or user.is_staff))
 
 
 class UserModelPermission(permissions.BasePermission):

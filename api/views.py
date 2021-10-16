@@ -1,10 +1,9 @@
 from datetime import datetime
 
 from django.db.models import Q
-from rest_framework import permissions, viewsets
-from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, IsAuthenticatedOrReadOnly
+from rest_framework import viewsets
 
-from api.permissions import IsPermittedEditContest, IsOwnerOrReadOnly
+from api.permissions import IsOwnerOrReadOnly, HasContestReadOnly
 from api.serializers import ContestSerializer, ProblemSerializer, CommentSerializer, SubmissionSerializer, \
     TestCaseSerializer, UserSerializer, TutorialSerializer, ProblemOwnerSerializer
 from judge.models import Contest, Problem, Submission, Tutorial, TestCase, Comment
@@ -22,7 +21,7 @@ class ContestViewSet(viewsets.ModelViewSet):
             return Contest.objects.filter(writers=self.request.user)
         return Contest.objects.all()
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [HasContestReadOnly]
     serializer_class = ContestSerializer
 
 
@@ -47,7 +46,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
             return ProblemOwnerSerializer
         return ProblemSerializer
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -55,14 +54,14 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.filter(problem_id=self.kwargs.get('problem_id'))
 
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class SubmissionViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'head', 'options']
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class TutorialViewSet(viewsets.ModelViewSet):
@@ -71,7 +70,7 @@ class TutorialViewSet(viewsets.ModelViewSet):
             return Tutorial.objects.filter(user=self.request.user)
         return Tutorial.objects.all()
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     serializer_class = TutorialSerializer
 
 
@@ -80,4 +79,4 @@ class TestCaseViewSet(viewsets.ModelViewSet):
         return TestCase.objects.all()
 
     serializer_class = TestCaseSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
