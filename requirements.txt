@@ -3,6 +3,7 @@ daphne==3.0.2
 djongo
 Django==3.2.8
 django-cors-headers==3.10.0
+django-debug-toolbar
 django-heroku==0.3.1
 djangorestframework==3.12.4
 djoser
