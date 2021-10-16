@@ -20,7 +20,7 @@ PROJECT_DIR = os.path.dirname(__file__)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'FfjdkslajfLKJFdslkafjlk454')
 DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = ['b12j.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['b12j.herokuapp.com', '127.0.0.1', 'b12j-api.herokuapp.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
