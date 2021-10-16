@@ -59,7 +59,6 @@ class Problem(models.Model):
     memory_limit = models.IntegerField(default=256)
     notice = models.TextField(blank=True, null=True)
     output_terms = models.TextField()
-    test_cases = models.ManyToManyField('TestCase', blank=True, null=True   )
     time_limit = models.IntegerField(default=1)
     title = models.CharField(max_length=100, unique=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
@@ -91,6 +90,7 @@ class Comment(models.Model):
 
 class TestCase(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     inputs = models.TextField()
     output = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

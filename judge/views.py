@@ -35,7 +35,7 @@ def judge_submission(instance: Submission, created, **kwargs):
         code = instance.code
         language = instance.language
         time_limit = instance.problem.time_limit
-        test_cases = instance.problem.test_cases.all()
+        test_cases = instance.problem.testcase_set.all()
         input_list, output_list = [], []
         for tc in test_cases:
             input_list.append(tc.inputs)
@@ -56,8 +56,8 @@ def judge_submission(instance: Submission, created, **kwargs):
 @receiver(post_save, sender=TestCase)
 def process_test_case(instance: TestCase, created, **kwargs):
     if created:
-        code = instance.problem_set.all().first().correct_code
-        time_limit = instance.problem_set.all().first().time_limit
+        code = instance.problem.correct_code
+        time_limit = instance.problem.time_limit
         test_text = instance.inputs
         data = {
             'code': code,

@@ -78,13 +78,23 @@ WSGI_APPLICATION = 'b12j.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'b12j',
-        # 'USER': os.environ.get('DB_ADMIN', 'admin'),
-        # 'PASSWORD': os.environ.get('DB_PASS', '1234'),
-        'HOST': 'mongodb://localhost:27017/b12j',
-        # 'PORT': '5432',
-    },
+        'ENFORCE_SCHEMA': False,
+        'NAME': 'b12j_db',
+        os.environ.get('MONGO_B12J', False) and
+        'CLIENT': {
+            'host': os.environ.get('MONGO_B12J'),
+            'username': os.environ.get('MONGO_USERNAME'),
+            'password': os.environ.get('MONGO_PASSWORD'),
+            'authMechanism': 'SCRAM-SHA-1'
+        },
+        not os.environ.get('MONGO_B12J', False) and
+        'CLIENT': {
+            'host': "mongodb://localhost:27017/"
+        }
+    }
 }
+
+
 if 'test' in sys.argv:
     DATABASES = {
         'default': {
@@ -189,7 +199,7 @@ DJOSER = {
     'SET_PASSWORD_RETYPE': True,
     'USERNAME_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     'PASSWORD_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'users/activate/{uid}/{token}/',
+    'ACTIVATION_URL': 'users/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['https://b12j.ga/google',

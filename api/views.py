@@ -22,7 +22,7 @@ class ContestViewSet(viewsets.ModelViewSet):
             return Contest.objects.filter(writers=self.request.user)
         return Contest.objects.all()
 
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly, IsPermittedEditContest]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = ContestSerializer
 
 
@@ -47,7 +47,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
             return ProblemOwnerSerializer
         return ProblemSerializer
 
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -80,4 +80,4 @@ class TestCaseViewSet(viewsets.ModelViewSet):
         return TestCase.objects.all()
 
     serializer_class = TestCaseSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
