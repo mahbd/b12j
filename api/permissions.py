@@ -21,6 +21,14 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
                     (obj.user_id == request.user.id or request.user.is_staff))
 
 
+class UserModelPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        if type(obj) == type(user) and obj == user:
+            return True
+        return request.method in SAFE_METHODS or user.is_staff
+
+
 class IsPermittedAddContest(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in [*permissions.SAFE_METHODS, 'PUT', 'DELETE'] or request.user.is_staff:
