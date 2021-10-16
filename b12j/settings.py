@@ -79,7 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'ENFORCE_SCHEMA': False,
-        'NAME': 'b12j_db',
+        'NAME': 'b12j',
         os.environ.get('MONGO_B12J', False) and
         'CLIENT': {
             'host': os.environ.get('MONGO_B12J'),
