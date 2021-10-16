@@ -11,3 +11,4 @@ psycopg2
 PyJWT==2.1.0
 python-dateutil
 requests
+dnspython
