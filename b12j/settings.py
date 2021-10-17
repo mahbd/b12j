@@ -211,7 +211,7 @@ DJOSER = {
         # 'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
     'PERMISSIONS': {
-        'user': ['api.permissions.UserModelPermission']
+        'user_list': ['api.permissions.UserModelPermission']
     }
 }
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '704405925886-dbk5n1mo85kdq96h7canvkul40if81ea.apps.googleusercontent.com'

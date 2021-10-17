@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
 from api.permissions import IsOwnerOrReadOnly, HasContestReadOnly
@@ -75,8 +76,8 @@ class TutorialViewSet(viewsets.ModelViewSet):
 
 
 class TestCaseViewSet(viewsets.ModelViewSet):
-    def get_queryset(self):
-        return TestCase.objects.all()
-
+    queryset = TestCase.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['problem_id', 'user_id']
     serializer_class = TestCaseSerializer
     permission_classes = [IsOwnerOrReadOnly]
