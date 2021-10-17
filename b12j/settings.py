@@ -19,7 +19,7 @@ DatabaseWrapper.ops_class = PatchedDatabaseOperations
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = os.path.dirname(__file__)
 SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = os.environ.get('DEBUG', True)
+DEBUG = os.environ.get('DEBUG', "TRUE") == "TRUE"
 
 ALLOWED_HOSTS = ['b12j.herokuapp.com', '127.0.0.1', 'b12j-api.herokuapp.com', 'b12j.ga']
 

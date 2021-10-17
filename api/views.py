@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.db.models import Q
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
@@ -18,7 +17,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ContestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
-        if self.request.GET.get('user'):
+        if self.request.GET.get('user_contests'):
             return Contest.objects.filter(writers=self.request.user)
         return Contest.objects.all()
 
@@ -29,12 +28,17 @@ class ContestViewSet(viewsets.ModelViewSet):
 class ProblemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.GET.get('user_problems'):
-            return Problem.objects.filter(by=self.request.user)
+            return Problem.objects.filter(user=self.request.user)
         if self.request.GET.get('solved_problems'):
-            return Problem.objects.filter(submission__verdict='AC', submission__by=self.request.user)
+            return Problem.objects.filter(submission__verdict='AC', submission__user=self.request.user)
+        if self.request.GET.get('unsolved_problems'):
+            solved_ids = [problem.id for
+                          problem in Problem.objects.only('id').filter(submission__verdict='AC',
+                                                                       submission__user=self.request.user)]
+            return Problem.objects.exclude(id__in=solved_ids)
         if self.request.GET.get('test_problems'):
             q = Q(contest__writers=self.request.user) | Q(contest__testers=self.request.user)
-            return Problem.objects.filter(q, contest__start_time__gt=datetime.now())
+            return Problem.objects.filter(q, contest__start_time__gt=timezone.now())
         return Problem.objects.all()
 
     def get_serializer_class(self):
@@ -61,6 +65,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 class SubmissionViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'head', 'options']
     queryset = Submission.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['problem_id', 'user_id', 'contest_id']
     serializer_class = SubmissionSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
@@ -69,7 +75,7 @@ class TutorialViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.GET.get('user_tutorials'):
             return Tutorial.objects.filter(user=self.request.user)
-        return Tutorial.objects.all()
+        return Tutorial.objects.filter(hidden_till__lt=timezone.now())
 
     permission_classes = [IsOwnerOrReadOnly]
     serializer_class = TutorialSerializer
