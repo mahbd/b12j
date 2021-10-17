@@ -14,6 +14,7 @@ router.register(r'problems', views.ProblemViewSet, 'problems')
 router.register(r'submissions', views.SubmissionViewSet, 'submissions')
 router.register(r'tutorials', views.TutorialViewSet, 'tutorials')
 router.register(r'test-cases', views.TestCaseViewSet, 'test_cases')
+router.register(r'users', views.UserViewSet, 'users')
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
