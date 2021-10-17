@@ -28,24 +28,30 @@ class ContestProblemSerializer(serializers.ModelSerializer):
 
 # TODO: Add validators to start_time, end_time
 class ContestSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
-
     class Meta:
         model = Contest
         fields = ('description', 'end_time', 'id', 'problems', 'start_time',
                   'testers', 'title', 'user', 'writers')
+        read_only_fields = ('user', )
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
 
 
 class TestCaseSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
     class Meta:
         model = TestCase
         fields = '__all__'
+        read_only_fields = ('user', )
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
 
 
 class ProblemSerializer(serializers.ModelSerializer):
     test_cases = serializers.SerializerMethodField()
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
 
     def get_test_cases(self, problem: Problem) -> dict:
         return TestCaseSerializer(problem.testcase_set.all()[:problem.example_number], many=True).data
@@ -54,6 +60,11 @@ class ProblemSerializer(serializers.ModelSerializer):
         model = Problem
         exclude = ('created_at', 'checker_function', 'checker_func_lang',
                    'correct_code', 'correct_lang')
+        read_only_fields = ('user',)
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
 
 
 class ProblemOwnerSerializer(ProblemSerializer):
@@ -62,16 +73,18 @@ class ProblemOwnerSerializer(ProblemSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
-
     class Meta:
         model = Comment
         fields = '__all__'
+        read_only_fields = ('user',)
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
     problem_title = serializers.SerializerMethodField()
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
 
     # noinspection PyMethodMayBeStatic
     def get_problem_title(self, submission: Submission) -> str:
@@ -80,11 +93,19 @@ class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = '__all__'
+        read_only_fields = ('user',)
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
 
 
 class TutorialSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
-
     class Meta:
         model = Tutorial
         fields = '__all__'
+        read_only_fields = ('user',)
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
