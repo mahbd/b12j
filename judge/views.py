@@ -61,6 +61,7 @@ def process_test_case(instance: TestCase, created, **kwargs):
         test_text = instance.inputs
         data = {
             'code': code,
+            'language': instance.problem.correct_lang,
             'time_limit': time_limit,
             'input_text': test_text
         }
