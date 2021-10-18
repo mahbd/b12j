@@ -105,6 +105,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class SubmissionViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return SubmissionDetailsSerializer
         submission = Submission.objects.filter(pk=self.kwargs.get('pk'))
         if submission.exists():
             submission = submission.first()
