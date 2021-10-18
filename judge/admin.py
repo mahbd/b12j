@@ -32,7 +32,13 @@ class SubmissionAdmin(admin.ModelAdmin):
 
 @admin.register(TestCase)
 class TestCaseAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['problem', 'user', 'created_at', 'input2', 'output2']
+
+    def input2(self, test_case: TestCase):
+        return test_case.inputs[:75]
+
+    def output2(self, test_case: TestCase):
+        return test_case.output[:75]
 
 
 @admin.register(Tutorial)
