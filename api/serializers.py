@@ -20,36 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ['password']
 
 
-class ContestProblemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContestProblem
-        fields = '__all__'
-
-
-# TODO: Add validators to start_time, end_time
-class ContestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contest
-        fields = ('description', 'end_time', 'id', 'problems', 'start_time',
-                  'testers', 'title', 'user', 'writers')
-        read_only_fields = ('user', )
-
-    def validate(self, attrs):
-        attrs['user'] = self.context['request'].user
-        return attrs
-
-
-class TestCaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TestCase
-        fields = '__all__'
-        read_only_fields = ('user', )
-
-    def validate(self, attrs):
-        attrs['user'] = self.context['request'].user
-        return attrs
-
-
 class ProblemSerializer(serializers.ModelSerializer):
     test_cases = serializers.SerializerMethodField()
 
@@ -70,6 +40,38 @@ class ProblemSerializer(serializers.ModelSerializer):
 class ProblemOwnerSerializer(ProblemSerializer):
     class Meta(ProblemSerializer.Meta):
         exclude = ('created_at',)
+
+
+class ContestProblemSerializer(serializers.ModelSerializer):
+    problem = ProblemSerializer()
+
+    class Meta:
+        model = ContestProblem
+        fields = '__all__'
+
+
+# TODO: Add validators to start_time, end_time
+class ContestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contest
+        fields = ('description', 'end_time', 'id', 'start_time',
+                  'testers', 'title', 'user', 'writers')
+        read_only_fields = ('user',)
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
+
+
+class TestCaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestCase
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+    def validate(self, attrs):
+        attrs['user'] = self.context['request'].user
+        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):
