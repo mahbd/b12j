@@ -5,6 +5,7 @@ from . import views, restore
 app_name = 'judge'
 
 urlpatterns = [
+    path('rejudge/<int:sub_id>/', views.rejudge, name='rejudge'),
     # path('problem/<str:problem_id>', views.show_problem, name='show_problem'),
     # path('add_problem/<str:contest_id>', views.add_problem, name='add_problem'),
     # path('add_tc/<str:problem_id>', views.add_test_case, name='add_tc'),

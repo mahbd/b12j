@@ -4,6 +4,7 @@ import threading
 
 import requests
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.http import JsonResponse
@@ -51,6 +52,15 @@ def judge_submission(instance: Submission, created, **kwargs):
         data = json.dumps(data)
         thread = threading.Thread(target=_judge_submission, args=[data, instance.id])
         thread.start()
+
+
+@login_required
+def rejudge(request, sub_id):
+    if request.user.is_superuser:
+        submission = get_object_or_404(Submission, pk=sub_id)
+        judge_submission(submission, True)
+        return JsonResponse({'details': 'ok'})
+    return JsonResponse({'details': 'User does not have enough permission'}, status=403)
 
 
 @receiver(post_save, sender=TestCase)
