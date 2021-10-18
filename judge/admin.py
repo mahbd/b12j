@@ -27,7 +27,11 @@ class ProblemDiscussionAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    search_fields = ['problem__title', 'contest__title', 'user__first_name', 'user__last_name']
+    search_fields = ['problem__title', 'contest__title', 'user__first_name', 'user__last_name', 'user_username']
+    list_display = ['id', 'user', 'language', 'verdict', 'details2', 'created_at']
+
+    def details2(self, submission: Submission):
+        return str(submission.details)[:75]
 
 
 @admin.register(TestCase)

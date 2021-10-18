@@ -22,7 +22,7 @@ def _judge_submission(data, check_id):
         submission = Submission.objects.get(id=check_id)
         data[0], data[2] = data[2], data[0]
         submission.verdict = data[2]
-        submission.details = data
+        submission.details = json.dumps(data)
         submission.save()
     else:
         # ToDo: implement remote logging system

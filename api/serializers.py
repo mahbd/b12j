@@ -94,12 +94,18 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = '__all__'
+        fields = ('id', 'user', 'problem', 'problem_title', 'contest', 'language',
+                  'verdict', 'created_at')
         read_only_fields = ('user',)
 
     def validate(self, attrs):
         attrs['user'] = self.context['request'].user
         return attrs
+
+
+class SubmissionDetailsSerializer(SubmissionSerializer):
+    class Meta(SubmissionSerializer.Meta):
+        fields = '__all__'
 
 
 class TutorialSerializer(serializers.ModelSerializer):

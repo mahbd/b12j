@@ -8,7 +8,8 @@ from rest_framework.response import Response
 
 from api.permissions import IsOwnerOrReadOnly, HasContestOrReadOnly
 from api.serializers import ContestSerializer, ProblemSerializer, CommentSerializer, SubmissionSerializer, \
-    TestCaseSerializer, UserSerializer, TutorialSerializer, ProblemOwnerSerializer, ContestProblemSerializer
+    TestCaseSerializer, UserSerializer, TutorialSerializer, ProblemOwnerSerializer, ContestProblemSerializer, \
+    SubmissionDetailsSerializer
 from judge.models import Contest, Problem, Submission, Tutorial, TestCase, Comment, ContestProblem
 from users.models import User
 
@@ -103,11 +104,20 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class SubmissionViewSet(viewsets.ModelViewSet):
+    def get_serializer_class(self):
+        submission = Submission.objects.filter(pk=self.kwargs.get('pk'))
+        if submission.exists():
+            submission = submission.first()
+            user = self.request.user
+            if not submission.contest or submission.user == user or user.is_staff or\
+                    submission.contest.end_time < timezone.now():
+                return SubmissionDetailsSerializer
+        return SubmissionSerializer
+
     http_method_names = ['get', 'post', 'head', 'options']
     queryset = Submission.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['problem_id', 'user_id', 'contest_id']
-    serializer_class = SubmissionSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
 
