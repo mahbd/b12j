@@ -8,6 +8,7 @@ urlpatterns = [
     path('__debug__/', include(debug_toolbar.urls)),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('judge/', include('judge.urls')),
     path('ws/', include('ws.urls')),
     path('users/', include('users.urls')),
 ]
