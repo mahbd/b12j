@@ -26,6 +26,9 @@ class ContestProblem(models.Model):
     problem_char = models.CharField(default='A', max_length=3)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('-problem_char', )
+
 
 # TODO: Start and end time validator
 class Contest(models.Model):
@@ -87,6 +90,9 @@ class Comment(models.Model):
     def __str__(self):
         return self.text[:20]
 
+    class Meta:
+        ordering = ('-created_at', )
+
 
 class TestCase(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -97,6 +103,9 @@ class TestCase(models.Model):
 
     def __str__(self):
         return f'input: {self.inputs[:10]}, created_at: {self.created_at}'
+
+    class Meta:
+        ordering = ('-created_at', )
 
 
 class Submission(models.Model):
@@ -112,6 +121,9 @@ class Submission(models.Model):
     def __str__(self):
         return f'by: {self.user.username}\tverdict: {self.verdict}\tproblem:{self.problem.title}'
 
+    class Meta:
+        ordering = ('-created_at', )
+
 
 class Tutorial(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -124,3 +136,6 @@ class Tutorial(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ('-created_at', )

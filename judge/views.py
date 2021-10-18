@@ -64,7 +64,7 @@ def rejudge(request, sub_id):
 
 
 @receiver(post_save, sender=TestCase)
-def process_test_case(instance: TestCase, created, **kwargs):
+def generate_output(instance: TestCase, created, **kwargs):
     if created:
         code = instance.problem.correct_code
         time_limit = instance.problem.time_limit

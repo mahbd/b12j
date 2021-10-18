@@ -35,7 +35,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         if text_data_json.get('id_token') and not self.scope['user'].is_authenticated:
-            self.scope['user'] = await verify_user(text_data_json.get('id_token'))
+            self.scope['user'] = await verify_user(text_data_json.get('id_token'), self.channel_name)
             if self.scope['user'].is_authenticated:
                 self.channel_info = await update_user(self.channel_info, self.scope['user'])
 
@@ -70,8 +70,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 @database_sync_to_async
-def verify_user(id_token) -> User:
-    return validate_jwt(id_token) or AnonymousUser()
+def verify_user(id_token, channel_name) -> User:
+    current_user = validate_jwt(id_token)
+    if current_user and current_user.is_active:
+        ActiveChannel.objects.filter(channel_name=channel_name).delete()
+        ActiveChannel.objects.create(channel_name=channel_name, user=current_user)
+    return current_user
 
 
 @database_sync_to_async
