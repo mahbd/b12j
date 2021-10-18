@@ -76,7 +76,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
             solved_ids = [problem.id for
                           problem in Problem.objects.only('id').filter(submission__verdict='AC',
                                                                        submission__user=self.request.user)]
-            return Problem.objects.exclude(id__in=solved_ids).filter(hidden_till__gt=timezone.now())
+            return Problem.objects.exclude(id__in=solved_ids).filter(hidden_till__lt=timezone.now())
         if self.request.GET.get('test_problems'):
             q = Q(contest__writers=self.request.user) | Q(contest__testers=self.request.user)
             return Problem.objects.filter(q, contest__start_time__gt=timezone.now())
