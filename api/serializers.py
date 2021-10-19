@@ -24,7 +24,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     test_cases = serializers.SerializerMethodField()
 
     def get_test_cases(self, problem: Problem) -> dict:
-        return TestCaseSerializer(problem.testcase_set.all()[:problem.example_number], many=True).data
+        return TestCaseSerializer(problem.testcase_set.all().order_by('created_at')[:problem.example_number], many=True).data
 
     class Meta:
         model = Problem
