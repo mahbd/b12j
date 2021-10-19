@@ -94,10 +94,10 @@ def _calculate_standing(submission_list):
     info, time_count, problem_count = {}, {}, {}
     final_info = []
     for submission in submission_list:
-        info[f'{submission.by_id}___{submission.problem_id}'] = (
+        info[f'{submission.user_id}___{submission.problem_id}'] = (
                 submission.created_at - submission.contest.start_time).total_seconds()
-        problem_count[str(submission.by_id)] = 0
-        time_count[str(submission.by_id)] = 0
+        problem_count[str(submission.user_id)] = 0
+        time_count[str(submission.user_id)] = 0
     for key in info:
         time_count[key.split('___')[0]] += info[key]
         problem_count[key.split('___')[0]] += 1
