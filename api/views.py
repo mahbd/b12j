@@ -27,7 +27,7 @@ class ContestViewSet(viewsets.ModelViewSet):
             contest = get_object_or_404(Contest, pk=pk)
             contest_problems = ContestProblem.objects.filter(contest_id=pk)
             if not HasContestOrReadOnly().has_object_permission(request, None, contest, True):
-                contest_problems = contest_problems.exclude(contest__start_time__lt=timezone.now())
+                contest_problems = contest_problems.filter(contest__start_time__lt=timezone.now())  # exclude is wrong
             return Response({
                 "count": contest_problems.count(),
                 "results": ContestProblemSerializer(contest_problems, many=True).data,
@@ -111,7 +111,7 @@ class SubmissionViewSet(viewsets.ModelViewSet):
         if submission.exists():
             submission = submission.first()
             user = self.request.user
-            if not submission.contest or submission.user == user or user.is_staff or\
+            if not submission.contest or submission.user == user or user.is_staff or \
                     submission.contest.end_time < timezone.now():
                 return SubmissionDetailsSerializer
         return SubmissionSerializer
