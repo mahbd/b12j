@@ -27,7 +27,7 @@ class ContestProblem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ('-problem_char', )
+        ordering = ('problem_char', )
 
 
 # TODO: Start and end time validator
