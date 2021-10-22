@@ -33,7 +33,7 @@ class ContestAdmin(admin.ModelAdmin):
 class ProblemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
     list_filter = ['contest', 'user', ]
-    search_fields = ['title', 'contest__title', 'user__first_name', 'user__last_name', 'text']
+    search_fields = ['title', 'user__first_name', 'user__last_name', 'description']
     list_display = ['title', 'desc', 'difficulty', 'user', 'created_at']
     list_per_page = 20
 

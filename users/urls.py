@@ -1,6 +1,4 @@
-from django.contrib.auth import views as auth_view
 from django.urls import path
-from django.views.decorators.csrf import csrf_exempt
 
 from . import views
 
