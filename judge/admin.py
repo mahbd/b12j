@@ -18,6 +18,7 @@ class ContestProblemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['contest', 'problem']
     search_fields = ['contest__title', 'problem__title']
     list_display = ['contest', 'problem', 'problem_char']
+    list_filter = ['contest', 'problem']
     list_per_page = 50
 
 
@@ -45,7 +46,7 @@ class ProblemAdmin(admin.ModelAdmin):
 class SubmissionAdmin(admin.ModelAdmin):
     actions = ['rejudge_submissions']
     list_filter = ['verdict', 'contest', 'problem', 'user']
-    search_fields = ['problem__title', 'contest__title', 'user_username', 'user__first_name', 'user__last_name']
+    search_fields = ['problem__title', 'contest__title', 'user__username', 'user__first_name', 'user__last_name']
     list_display = ['id', 'user', "contest", 'problem', 'language', 'verdict', 'details2', 'created_at']
     list_per_page = 20
 
