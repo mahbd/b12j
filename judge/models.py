@@ -105,7 +105,7 @@ class TestCase(models.Model):
         return f'input: {self.inputs[:10]}, created_at: {self.created_at}'
 
     class Meta:
-        ordering = ('-created_at', )
+        ordering = ('created_at', )
 
 
 class Submission(models.Model):

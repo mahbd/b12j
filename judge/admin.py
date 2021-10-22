@@ -18,7 +18,7 @@ class ContestProblemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['contest', 'problem']
     search_fields = ['contest__title', 'problem__title']
     list_display = ['contest', 'problem', 'problem_char']
-    list_per_page = 10
+    list_per_page = 50
 
 
 @admin.register(Contest)
@@ -26,15 +26,16 @@ class ContestAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user', 'writers', 'testers']
     search_fields = ['title', 'description', 'hosts__first_name', 'hosts__last_name']
     list_display = ['id', 'title', 'start_time', 'end_time', 'user']
-    list_per_page = 10
+    list_per_page = 20
 
 
 @admin.register(Problem)
 class ProblemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
+    list_filter = ['contest', 'user', ]
     search_fields = ['title', 'contest__title', 'user__first_name', 'user__last_name', 'text']
-    list_display = ['title', 'desc', 'difficulty', 'created_at']
-    list_per_page = 10
+    list_display = ['title', 'desc', 'difficulty', 'user', 'created_at']
+    list_per_page = 20
 
     def desc(self, problem: Problem) -> str:
         return problem.description[:30]
@@ -43,8 +44,8 @@ class ProblemAdmin(admin.ModelAdmin):
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
     actions = ['rejudge_submissions']
-    list_filter = ['problem', 'contest']
-    search_fields = ['problem__title', 'contest__title', 'user__first_name', 'user__last_name', 'user_username']
+    list_filter = ['verdict', 'contest', 'problem', 'user']
+    search_fields = ['problem__title', 'contest__title', 'user_username', 'user__first_name', 'user__last_name']
     list_display = ['id', 'user', "contest", 'problem', 'language', 'verdict', 'details2', 'created_at']
     list_per_page = 20
 
@@ -85,4 +86,4 @@ class TutorialAdmin(admin.ModelAdmin):
     search_fields = ['title', 'text']
     list_display = ['id', 'title', 'created_at']
     autocomplete_fields = ['user']
-    list_per_page = 10
+    list_per_page = 20
