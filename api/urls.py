@@ -24,6 +24,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['name'] = user.get_full_name() or user.username
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
+        token['username'] = user.username
+        token['first_name'] = user.first_name
+        token['last_name'] = user.last_name
+        token['email'] = user.email
         return token
 
 
