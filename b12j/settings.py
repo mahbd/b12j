@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 3rd party
     'debug_toolbar',
     'social_django',
     'rest_framework_simplejwt',
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'channels',
+    # Own apps
     'users',
     'ws',
     'judge',
@@ -145,6 +147,7 @@ EMAIL_USE_TLS = True  #
 AUTH_USER_MODEL = 'users.User'  #
 
 AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend'
@@ -201,8 +204,17 @@ DJOSER = {
     'ACTIVATION_URL': 'users/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
-    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['https://b12j.ga/google',
-                                          'https://b12j.ga/facebook'],
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
+        'https://b12j.ga/users/confirmOAuth/google',
+        'https://b12j.ga/confirmOAuth/facebook',
+        'https://b12j.ga/confirmOAuth/github',
+        'https://b12j.herokuapp.com/users/confirmOAuth/google',
+        'https://b12j.herokuapp.com/confirmOAuth/facebook',
+        'https://b12j.herokuapp.com/confirmOAuth/github',
+        'http://localhost:3000/users/confirmOAuth/google',
+        'http://localhost:3000/users/confirmOAuth/facebook',
+        'http://localhost:3000/users/confirmOAuth/github',
+    ],
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserCreateSerializer',
         'user_create_password_retype': 'users.serializers.UserCreatePasswordRetypeSerializer',
@@ -214,20 +226,24 @@ DJOSER = {
         'user_list': ['api.permissions.UserModelPermission']
     }
 }
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '704405925886-dbk5n1mo85kdq96h7canvkul40if81ea.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '0f8crH11JaO71PgOS6GoIKK6'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_SECRET')
+SOCIAL_AUTH_GITHUB_KEY = os.environ.get('GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('GITHUB_SECRET')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email',
                                    'https://www.googleapis.com/auth/userinfo.profile', 'openid']
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
 
-SOCIAL_AUTH_FACEBOOK_KEY = '874103216697597'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'd2c0fd6bd749b2e00360cb559e46fd5a'
+SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get('FACEBOOK_KEY')
+SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get('FACEBOOK_SECRET')
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'email, first_name, last_name'
 }
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 #####################################################################
 CORS_ALLOW_ALL_ORIGINS = True  #
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = list(default_methods)
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "x-auth-token",
