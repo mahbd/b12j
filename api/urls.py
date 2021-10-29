@@ -1,11 +1,9 @@
 from django.conf.urls import url
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
 
-from . import views
 from judge import views as judge_view
+from . import views
 
 router = DefaultRouter()
 router.register(r'contests', views.ContestViewSet, 'contests')
@@ -16,27 +14,9 @@ router.register(r'tutorials', views.TutorialViewSet, 'tutorials')
 router.register(r'test-cases', views.TestCaseViewSet, 'test_cases')
 router.register(r'users', views.UserViewSet, 'users')
 
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['name'] = user.get_full_name() or user.username
-        token['is_staff'] = user.is_staff
-        token['is_superuser'] = user.is_superuser
-        token['username'] = user.username
-        token['first_name'] = user.first_name
-        token['last_name'] = user.last_name
-        token['email'] = user.email
-        return token
-
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
-
-
 urlpatterns = [
-    path('auth/jwt/create/', MyTokenObtainPairView.as_view(),
+    path("auth/o/complete/<str:provider>/", views.CompleteView.as_view(), name="complete"),
+    path('auth/jwt/create/', views.MyTokenObtainPairView.as_view(),
          name='token_obtain_pair'),
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.jwt')),

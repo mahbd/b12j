@@ -1,10 +1,18 @@
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action, permission_classes
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from social_django.utils import psa
 
 from api.permissions import IsOwnerOrReadOnly, HasContestOrReadOnly
 from api.serializers import ContestSerializer, ProblemSerializer, CommentSerializer, SubmissionSerializer, \
@@ -12,6 +20,56 @@ from api.serializers import ContestSerializer, ProblemSerializer, CommentSeriali
     SubmissionDetailsSerializer
 from judge.models import Contest, Problem, Submission, Tutorial, TestCase, Comment, ContestProblem
 from users.models import User
+
+
+def fill_token_with_extra(token, user) -> RefreshToken:
+    token['name'] = user.get_full_name() or user.username
+    token['is_staff'] = user.is_staff
+    token['is_superuser'] = user.is_superuser
+    token['username'] = user.username
+    token['first_name'] = user.first_name
+    token['last_name'] = user.last_name
+    token['email'] = user.email
+    return token
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user) -> RefreshToken:
+        token = super().get_token(user)
+        return fill_token_with_extra(token, user)
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
+@psa()
+def _psa(request, backend):
+    pass
+
+
+class CompleteView(APIView):  # Knox login view
+    permission_classes = [AllowAny]
+
+    @method_decorator(never_cache)
+    def post(self, request, *args, **kwargs):
+        provider = kwargs["provider"]
+        _psa(request, provider)
+        request.backend.data = request.data
+        request.backend.redirect_uri = request.data.get("redirect_uri")
+        request.backend.REDIRECT_STATE = False
+        request.backend.STATE_PARAMETER = False
+        user = request.user if request.user.is_authenticated else None
+        user = request.backend.complete(user=user)
+        if not isinstance(user, User):
+            return user
+
+        request.user = user
+        token = RefreshToken.for_user(user)
+        refresh = fill_token_with_extra(token, user)
+        data = {'refresh': str(refresh), 'access': str(refresh.access_token)}
+        return Response(data)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
