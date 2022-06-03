@@ -18,6 +18,7 @@ urlpatterns = [
     path("auth/o/complete/<str:provider>/", views.CompleteView.as_view(), name="complete"),
     path('auth/jwt/create/', views.MyTokenObtainPairView.as_view(),
          name='token_obtain_pair'),
+    path('auth/google/token/', views.google_login, name='google_login'),
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.jwt')),
     url(r'^auth/', include('djoser.social.urls')),

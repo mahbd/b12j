@@ -1,10 +1,17 @@
+import os
+from pathlib import Path
+
+import firebase_admin
+import requests
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
+from firebase_admin import credentials, auth
+from firebase_admin.auth import ExpiredIdTokenError
 from rest_framework import viewsets
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action, permission_classes, api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -20,6 +27,20 @@ from api.serializers import ContestSerializer, ProblemSerializer, CommentSeriali
     SubmissionDetailsSerializer
 from judge.models import Contest, Problem, Submission, Tutorial, TestCase, Comment, ContestProblem
 from users.models import User
+
+
+path = os.path.join(Path(__file__).resolve().parent.parent, "firebase-adminsdk.json")
+if os.path.exists('firebase-adminsdk.json'):
+    cred = credentials.Certificate('firebase-adminsdk.json')
+    firebase_admin.initialize_app(cred)
+else:
+    if os.getenv('FIREBASE_SDK'):
+        url = os.getenv('FIREBASE_SDK')
+        json_data = requests.get(url).json()
+        cred = credentials.Certificate(json_data)
+        firebase_admin.initialize_app(cred)
+    else:
+        raise Exception('firebase-adminsdk.json not found')
 
 
 def fill_token_with_extra(token, user) -> RefreshToken:
@@ -197,3 +218,33 @@ class TestCaseViewSet(viewsets.ModelViewSet):
     filterset_fields = ['problem_id', 'user_id']
     serializer_class = TestCaseSerializer
     permission_classes = [IsOwnerOrReadOnly]
+
+
+@api_view(['POST'])
+def google_login(request):
+    id_token = request.POST.get('id_token') or request.data.get('id_token')
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+    except ExpiredIdTokenError:
+        return Response({'details': 'Token expired'}, status=400)
+    except ValueError:
+        return Response({'details': 'Invalid token'}, status=400)
+    name = decoded_token['name']
+    first_name = name.split(' ')[0]
+    last_name = ' '.join(name.split(' ')[1:])
+    email = decoded_token['email']
+    user_id = decoded_token['uid']
+    # check if user exists with this email
+    user = User.objects.filter(email=email)
+    if user.exists():
+        user = user.first()
+        token_obj = RefreshToken.for_user(user)
+        fill_token_with_extra(token_obj, user)
+        user.last_login = timezone.now()
+        user.save()
+        return Response({'access': str(token_obj), 'refresh': str(token_obj)})
+    else:
+        user = User.objects.create(username=user_id, email=email, first_name=first_name, last_name=last_name)
+        token_obj = RefreshToken.for_user(user)
+        fill_token_with_extra(token_obj, user)
+        return Response({'access': str(token_obj), 'refresh': str(token_obj)})
