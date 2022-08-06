@@ -56,7 +56,7 @@ psycopg2==2.9.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
-PyJWT==2.1.0
+PyJWT==2.4.0
 pymongo==3.12.1
 pyOpenSSL==21.0.0
 pyparsing==3.0.9
