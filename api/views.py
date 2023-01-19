@@ -29,9 +29,9 @@ from judge.models import Contest, Problem, Submission, Tutorial, TestCase, Comme
 from users.models import User
 
 
-path = os.path.join(Path(__file__).resolve().parent.parent, "firebase_admin.json")
-if os.path.exists('firebase_admin.json'):
-    cred = credentials.Certificate('firebase_admin.json')
+path = os.path.join(Path(__file__).resolve().parent.parent, "firebase-adminsdk.json")
+if os.path.exists('firebase-adminsdk.json'):
+    cred = credentials.Certificate('firebase-adminsdk.json')
     firebase_admin.initialize_app(cred)
 else:
     if os.getenv('FIREBASE_SDK'):
@@ -40,7 +40,7 @@ else:
         cred = credentials.Certificate(json_data)
         firebase_admin.initialize_app(cred)
     else:
-        raise Exception('firebase_admin.json not found')
+        raise Exception('firebase-adminsdk.json not found')
 
 
 def fill_token_with_extra(token, user) -> RefreshToken:
