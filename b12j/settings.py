@@ -205,9 +205,9 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': True,
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
-        'https://b12j.ga/users/confirmOAuth/google',
-        'https://b12j.ga/users/confirmOAuth/facebook',
-        'https://b12j.ga/users/confirmOAuth/github',
+        'https://brurcplab.ga/users/confirmOAuth/google',
+        'https://brurcplab.ga/users/confirmOAuth/facebook',
+        'https://brurcplab.ga/users/confirmOAuth/github',
         'https://b12j.herokuapp.com/users/confirmOAuth/google',
         'https://b12j.herokuapp.com/users/confirmOAuth/facebook',
         'https://b12j.herokuapp.com/users/confirmOAuth/github',
