@@ -17,7 +17,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from social_django.utils import psa
 
@@ -240,13 +240,17 @@ def google_login(request):
     user = User.objects.filter(email=email)
     if user.exists():
         user = user.first()
-        token_obj = RefreshToken.for_user(user)
-        fill_token_with_extra(token_obj, user)
+        refresh_token = RefreshToken.for_user(user)
+        access_token = AccessToken.for_user(user)
+        fill_token_with_extra(refresh_token, user)
+        fill_token_with_extra(access_token, user)
         user.last_login = timezone.now()
         user.save()
-        return Response({'access': str(token_obj), 'refresh': str(token_obj)})
+        return Response({'access': str(access_token), 'refresh': str(refresh_token)})
     else:
         user = User.objects.create(username=user_id, email=email, first_name=first_name, last_name=last_name)
-        token_obj = RefreshToken.for_user(user)
-        fill_token_with_extra(token_obj, user)
-        return Response({'access': str(token_obj), 'refresh': str(token_obj)})
+        refresh_token = RefreshToken.for_user(user)
+        access_token = AccessToken.for_user(user)
+        fill_token_with_extra(refresh_token, user)
+        fill_token_with_extra(access_token, user)
+        return Response({'access': str(access_token), 'refresh': str(refresh_token)})
