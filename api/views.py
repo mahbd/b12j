@@ -190,8 +190,13 @@ class SubmissionViewSet(viewsets.ModelViewSet):
         if submission.exists():
             submission = submission.first()
             user = self.request.user
-            if not submission.contest or submission.user == user or user.is_staff or \
-                    submission.contest.end_time < timezone.now():
+            if submission.user == user or user.is_staff:
+                return SubmissionDetailsSerializer
+            completed_all_contest = True
+            for contest in submission.problem.contest_set():
+                if contest.end_time < timezone.now():
+                    completed_all_contest = False
+            if completed_all_contest:
                 return SubmissionDetailsSerializer
         return SubmissionSerializer
 
