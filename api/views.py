@@ -28,7 +28,6 @@ from api.serializers import ContestSerializer, ProblemSerializer, CommentSeriali
 from judge.models import Contest, Problem, Submission, Tutorial, TestCase, Comment, ContestProblem
 from users.models import User
 
-
 path = os.path.join(Path(__file__).resolve().parent.parent, "firebase-adminsdk.json")
 if os.path.exists('firebase-adminsdk.json'):
     cred = credentials.Certificate('firebase-adminsdk.json')
@@ -159,7 +158,9 @@ class ProblemViewSet(viewsets.ModelViewSet):
         if self.request.GET.get('test_problems'):
             q = Q(contest__writers=self.request.user) | Q(contest__testers=self.request.user)
             return Problem.objects.filter(q, contest__start_time__gt=timezone.now())
-        return Problem.objects.filter(hidden_till__lt=timezone.now())
+        return [problem for problem in
+                Problem.objects.filter(hidden_till__lt=timezone.now())
+                if problem.is_hidden() is False]
 
     def get_serializer_class(self):
         request = self.request
@@ -193,7 +194,7 @@ class SubmissionViewSet(viewsets.ModelViewSet):
             if submission.user == user or user.is_staff:
                 return SubmissionDetailsSerializer
             completed_all_contest = True
-            for contest in submission.problem.contest_set():
+            for contest in submission.problem.contest_set.all():
                 if contest.end_time < timezone.now():
                     completed_all_contest = False
             if completed_all_contest:

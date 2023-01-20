@@ -67,6 +67,14 @@ class Problem(models.Model):
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(default=timezone.now)
 
+    def is_hidden(self) -> bool:
+        all_contest_completed = True
+        for contest in self.contest_set.all():
+            if contest.end_time > timezone.now():
+                all_contest_completed = False
+                break
+        return not all_contest_completed and self.hidden_till > timezone.now()
+
     def is_unused(self) -> bool:
         if self.contestproblem_set.all():
             return False
