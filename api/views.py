@@ -193,11 +193,7 @@ class SubmissionViewSet(viewsets.ModelViewSet):
             user = self.request.user
             if submission.user == user or user.is_staff:
                 return SubmissionDetailsSerializer
-            completed_all_contest = True
-            for contest in submission.problem.contest_set.all():
-                if contest.end_time < timezone.now():
-                    completed_all_contest = False
-            if completed_all_contest:
+            if submission.problem.is_hidden() is False:
                 return SubmissionDetailsSerializer
         return SubmissionSerializer
 

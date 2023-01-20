@@ -73,7 +73,7 @@ class Problem(models.Model):
             if contest.end_time > timezone.now():
                 all_contest_completed = False
                 break
-        return not all_contest_completed and self.hidden_till > timezone.now()
+        return not all_contest_completed or self.hidden_till > timezone.now()
 
     def is_unused(self) -> bool:
         if self.contestproblem_set.all():
