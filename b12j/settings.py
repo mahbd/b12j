@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'channels',
+    'django_filters',
     # Own apps
     'users',
     'ws',
