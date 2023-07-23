@@ -19,7 +19,7 @@ DatabaseWrapper.ops_class = PatchedDatabaseOperations
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = os.path.dirname(__file__)
 SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = os.environ.get('DEBUG', "TRUE") == "TRUE"
+DEBUG = os.environ.get('DEBUG', "True") == "True"
 
 ALLOWED_HOSTS = ['b12j.herokuapp.com', '127.0.0.1', 'b12j-api.herokuapp.com', 'brurcplab.ga', 'api.brurcplab.ga', '0.0.0.0']
 
@@ -137,6 +137,9 @@ MEDIA_URL = '/media/'  #
 STATIC_URL = '/static/'  #
 STATIC_ROOT = os.path.join(BASE_DIR, str('static/'))  #
 LOGIN_URL = '/users/login/'  #
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'b12j-front', "build", "static"),  # update the STATICFILES_DIRS
+)
 #####################################################################
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  #
 EMAIL_HOST = "smtp.gmail.com"  #
