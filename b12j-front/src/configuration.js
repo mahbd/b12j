@@ -2,9 +2,7 @@ const getEndpoint = () => {
   if (process.env.BACK_END) {
     return `https://${process.env.BACK_END}`;
   } else if (document.domain === "localhost" || document.domain === "127.0.0.1") return "http://127.0.0.1:8000";
-  else if (document.domain === "b12j.herokuapp.com" || document.domain === "b12j-api.herokuapp.com") {
-    return `${document.location.protocol}//b12j-api.herokuapp.com`;
-  } else return "https://api.b12j.ga";
+  else return document.location.protocol + document.domain + (document.location.port ? ":" + document.location.port : "");
 };
 
 export const endpoint = getEndpoint();
