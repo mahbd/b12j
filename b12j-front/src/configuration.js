@@ -12,7 +12,7 @@ export const wssURL = () => {
     if (process.env.BACK_END) {
         return `wss://${process.env.BACK_END}`;
     }
-    return protocol + document.domain + (document.location.port ? ":" + document.location.port : "");
+    return protocol + document.domain + (document.location.port ? ":" + document.location.port : "") + "/ws";
 };
 
 const mainUrls = {
