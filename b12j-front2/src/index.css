@@ -1,0 +1,85 @@
+html, body {
+    height: 100%;
+}
+
+@media all and (min-width: 480px) {
+    .one-form {
+        padding: 60px 0;
+    }
+
+
+    .one-form form {
+        margin: 0 auto;
+        max-width: 320px;
+    }
+}
+
+.form-btn {
+    width: 100%;
+    margin: 2px 0;
+}
+
+.blank20 {
+    margin: 30px;
+}
+
+.loader {
+    margin: 0 auto;
+    border-top: 16px solid blue;
+    border-right: 16px solid green;
+    border-bottom: 16px solid red;
+    border-left: 16px solid pink;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 1s linear infinite;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+}
+
+.loader-container {
+    top: 30vh;
+    left: 30vw;
+    right: 30vw;
+    z-index: 9999;
+    position: fixed;
+    display: none;
+}
+
+.bi-heading4 {
+    background: #000000;
+    color: #FFFFFF;
+    border-radius: 0.3rem !important;
+    font-size: 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.vlr {
+    border-right: 4px solid black;
+    height: 100%;
+}
+
+.vll {
+    border-left: 4px solid black;
+    height: 100%;
+}
+
+.width-100 {
+    width: 330px;
+}
+
+.ql-container {
+    font-size: 16px;
+}
+
+.full-height {
+    height: 100vh;
+}
