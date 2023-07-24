@@ -1,8 +1,6 @@
 import json
-import os
 import threading
 
-import requests
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
@@ -10,16 +8,15 @@ from django.dispatch import receiver
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
+from .judge import judge_solution, just_output
 from .models import Contest, Submission, TestCase
 
 User = get_user_model()
 
 
 def _judge_submission(data, check_id):
-    judge_url = os.environ.get('JUDGE_URL') + f'/judge/{check_id}/'
-    response = requests.post(judge_url, json=data)
-    if response.status_code == 200:
-        data = response.json()['status']
+    data, status_code = judge_solution(check_id, data)
+    if status_code == 200:
         submission = Submission.objects.get(id=check_id)
         data[0], data[2] = data[2], data[0]
         submission.verdict = data[2]
@@ -49,7 +46,6 @@ def judge_submission(instance: Submission, created, **kwargs):
             'input_list': input_list,
             'output_list': output_list
         }
-        data = json.dumps(data)
         thread = threading.Thread(target=_judge_submission, args=[data, instance.id])
         thread.start()
 
@@ -75,17 +71,11 @@ def generate_output(instance: TestCase, created, **kwargs):
             'time_limit': time_limit,
             'input_text': test_text
         }
-        data = json.dumps(data)
-
-        judge_url = os.environ.get('JUDGE_URL') + f'/get_output/{instance.id}/'
-        response = requests.post(judge_url, json=data)
-        if response.status_code == 200:
-            output = response.json()['output']
+        output, status_code = just_output(instance.id, data)
+        if status_code == 200:
             instance.output = output
             instance.save()
         else:
-            # ToDo: implement remote logging system
-            print(response.content)
             print('Error happened')
 
 
