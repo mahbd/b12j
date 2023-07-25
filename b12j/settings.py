@@ -49,7 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -86,15 +86,18 @@ DATABASES = {
         'ENFORCE_SCHEMA': False,
         'NAME': 'b12j',
         'CLIENT': {
-            'host': os.environ.get('MONGO_B12J'),
-            'username': os.environ.get('MONGO_USERNAME'),
-            'password': os.environ.get('MONGO_PASSWORD'),
+            'host': 'mongodb+srv://mah:1k1k@cluster0.wkb1y.mongodb.net/?retryWrites=true&w=majority',
+            # 'host': os.environ.get('MONGO_B12J'),
+            'username': 'mah',
+            # 'username': os.environ.get('MONGO_USERNAME'),
+            'password': '1k1k',
+            # 'password': os.environ.get('MONGO_PASSWORD'),
             'authMechanism': 'SCRAM-SHA-1'
         },
-        not os.environ.get('MONGO_B12J', False) and
-        'CLIENT': {
-            'host': "mongodb://localhost:27017/"
-        }
+        # not os.environ.get('MONGO_B12J', False) and
+        # 'CLIENT': {
+        #     'host': "mongodb://localhost:27017/"
+        # }
     }
 }
 

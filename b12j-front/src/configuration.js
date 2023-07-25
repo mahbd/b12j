@@ -1,7 +1,11 @@
 const getEndpoint = () => {
     if (process.env.BACK_END)
         return `https://${process.env.BACK_END}`;
-    return document.location.protocol + document.domain + (document.location.port ? ":" + document.location.port : "");
+    const protocol = document.location.protocol === "https:" ? "https://" : "http://";
+    const port = document.location.port ? ":" + document.location.port : "";
+    const domain = document.domain;
+    console.log(protocol + domain + port);
+    return protocol + domain + port;
 };
 
 export const endpoint = getEndpoint();
