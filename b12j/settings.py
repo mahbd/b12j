@@ -85,12 +85,9 @@ DATABASES = {
         'ENFORCE_SCHEMA': False,
         'NAME': 'b12j',
         'CLIENT': {
-            'host': 'mongodb+srv://mah:1k1k@cluster0.wkb1y.mongodb.net/?retryWrites=true&w=majority',
-            # 'host': os.environ.get('MONGO_B12J'),
-            'username': 'mah',
-            # 'username': os.environ.get('MONGO_USERNAME'),
-            'password': '1k1k',
-            # 'password': os.environ.get('MONGO_PASSWORD'),
+            'host': os.environ.get('MONGO_B12J'),
+            'username': os.environ.get('MONGO_USERNAME'),
+            'password': os.environ.get('MONGO_PASSWORD'),
             'authMechanism': 'SCRAM-SHA-1'
         },
         # not os.environ.get('MONGO_B12J', False) and
