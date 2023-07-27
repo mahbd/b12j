@@ -11,7 +11,7 @@ const Submission = ({ match }) => {
   const [submission, setSubmission] = useState(undefined);
 
   useEffect(() => {
-    httpService.get(`${apiEndpoint}${serverUrls.submissions}/${submissionId}`).then(res => {
+    httpService.get(`${apiEndpoint}${serverUrls.submissions}/${submissionId}/`).then(res => {
       setSubmission(res.data);
     }).catch(err => {
       console.log(err);

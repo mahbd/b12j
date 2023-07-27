@@ -90,10 +90,10 @@ DATABASES = {
             'password': os.environ.get('MONGO_PASSWORD'),
             'authMechanism': 'SCRAM-SHA-1'
         },
-        # not os.environ.get('MONGO_B12J', False) and
-        # 'CLIENT': {
-        #     'host': "mongodb://localhost:27017/"
-        # }
+        not os.environ.get('MONGO_B12J', False) and
+        'CLIENT': {
+            'host': "mongodb://localhost:27017/"
+        }
     }
 }
 
