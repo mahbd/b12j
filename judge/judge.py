@@ -121,7 +121,7 @@ def check_test_case(path, input_list, output_list, language, time_limit, websock
 
 def compile_code_cpp(path, code):
     create_files(path, zip(['.cpp', '_err.txt'], [code, '']))
-    if os.system(f'g++ {path}.cpp -o {path} 2> {path}_err.txt') != 0:
+    if os.system(f'g++ -std=c++20 {path}.cpp -o {path} 2> {path}_err.txt') != 0:
         with open(f'{path}_err.txt', 'r') as file_err:
             errors = file_err.read()
         delete_files(path, ['.cpp', '_err.txt'])
