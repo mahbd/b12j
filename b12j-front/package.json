@@ -59,7 +59,7 @@
     "tabWidth": 3
   },
   "engines": {
-    "node": "16.15.0"
+    "node": "16.20.2"
   },
   "engineStrict": true
 }
