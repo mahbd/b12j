@@ -92,7 +92,7 @@ DATABASES = {
         },
         not os.environ.get('MONGO_B12J', False) and
         'CLIENT': {
-            'host': "mongodb://localhost:27017/"
+            'host': "mongodb://mah:1234@localhost:27017/"
         }
     }
 }

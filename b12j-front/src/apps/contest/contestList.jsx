@@ -4,18 +4,16 @@ import { SuperContext } from "../../context";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import ContestCard from "../../components/cards/contestCard";
+import { pagination } from "../../components/helperFunctions";
+import { urls } from "../../configuration";
 
 dayjs.extend(isSameOrBefore);
 
 const ContestList = ({match}) => {
-  const {page} = match.params;
+  const {page} = parseInt(match.params.page) || 1;
   const { contestActs, userActs } = useContext(SuperContext);
-  let contestList = [];
-  if (page) {
-    contestList = contestActs.getListPage();
-  } else {
-    contestList = contestActs.getListPage(page);
-  }
+  let contestList = contestActs.getListPage(page);
+   const pages = contestActs.totalPages();
   let ended = [],
     upcoming = [];
   for (let contest of contestList) {
@@ -35,6 +33,7 @@ const ContestList = ({match}) => {
       {ended.map((contest) => (
         <ContestCard key={contest.id} contest={contest} userActs={userActs} prev={true} />
       ))}
+      {pagination(`${urls.contests}/page=`, pages, page)}
     </div>
   );
 };

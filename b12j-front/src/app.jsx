@@ -33,6 +33,7 @@ const App = () => {
       <NavBar />
       <Switch>
         <Route path={urls.home} component={Home} />
+        <Route path={urls.users} component={UserRoute} />
         <div className={"row"}>
           <div className={" d-none d-lg-block float-start m-2"} style={{ width: "240px" }}>
             <LeftSideBar />
@@ -45,7 +46,6 @@ const App = () => {
               <Route path={urls.submissions} component={SubmissionRoute} />
               <Route path={urls.tutorials} component={TutorialRoute} />
               <Route path={urls.profile} component={ProfileRoute} />
-              <Route path={urls.users} component={UserRoute} />
             </Switch>
           </div>
           <div className={"col-2 d-none d-xxl-block float-end"}>

@@ -4,7 +4,9 @@ const getEndpoint = () => {
     const protocol = document.location.protocol === "https:" ? "https://" : "http://";
     const port = document.location.port ? ":" + document.location.port : "";
     const domain = document.domain;
-    console.log(protocol + domain + port);
+      if (domain === "localhost") {
+         return "http://localhost:8000";
+      }
     return protocol + domain + port;
 };
 
@@ -15,6 +17,9 @@ export const wssURL = () => {
     const protocol = document.location.protocol === "https:" ? "wss://" : "ws://";
     if (process.env.BACK_END) {
         return `wss://${process.env.BACK_END}`;
+    }
+    if (document.location.hostname === "localhost") {
+         return "ws://localhost:8000/ws";
     }
     return protocol + document.domain + (document.location.port ? ":" + document.location.port : "") + "/ws";
 };
