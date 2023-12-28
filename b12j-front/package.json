@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@hookform/resolvers": "^3.3.3",
     "@reduxjs/toolkit": "^1.6.0",
     "axios": "^0.21.1",
     "dayjs": "^1.10.6",
@@ -17,6 +18,7 @@
     "react-countdown": "^2.3.2",
     "react-dom": "^17.0.2",
     "react-firebase-hooks": "^5.0.3",
+    "react-hook-form": "^7.49.2",
     "react-quilljs": "^1.2.15",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
@@ -24,7 +26,8 @@
     "reconnecting-websocket": "^4.4.0",
     "reselect": "^4.0.0",
     "update": "^0.7.4",
-    "validator": "^13.6.0"
+    "validator": "^13.6.0",
+    "zod": "^3.22.4"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
