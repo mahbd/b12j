@@ -9,10 +9,12 @@ import ResendActivation from "./resendActivation";
 import ResetPassword from "./resetPassword";
 import EmailConfirmed from "./emailConfirmed";
 import ResetPasswordGivePass from "./resetPasswordGivePass";
+import ProfileRoute from "../profile/profileRoute";
 
 const UserRoute = () => {
    return (
       <Switch>
+         <Route path={urls.profile} component={ProfileRoute} />
          <Route path={urls.login} component={Login} />
          <Route path={urls.register} component={Register} />
          <Route path={urls.registerSuccess} component={RegistrationSuccessful} />

@@ -15,7 +15,6 @@ import OthersRoute from "./apps/others/othersRoute";
 import LeftSideBar from "./apps/others/leftSideBar";
 import RightSideBar from "./apps/others/rightSideBar";
 import TutorialRoute from "./apps/tutorial/tutorialRoute";
-import ProfileRoute from "./apps/profile/profileRoute";
 
 const App = () => {
   const [refresh, setRefresh] = useState(false);
@@ -45,7 +44,6 @@ const App = () => {
               <Route path={urls.others} component={OthersRoute} />
               <Route path={urls.submissions} component={SubmissionRoute} />
               <Route path={urls.tutorials} component={TutorialRoute} />
-              <Route path={urls.profile} component={ProfileRoute} />
             </Switch>
           </div>
           <div className={"col-2 d-none d-xxl-block float-end"}>

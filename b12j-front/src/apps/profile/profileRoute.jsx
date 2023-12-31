@@ -11,7 +11,7 @@ import TestProblems from "./testProblems";
 
 const ProfileRoute = () => {
   return (
-    <div>
+    <div className={"container"}>
       <ProfileNav />
       <Switch>
         <Route path={urls.testProblems} component={TestProblems} />
