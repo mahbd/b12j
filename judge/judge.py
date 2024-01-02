@@ -1,10 +1,50 @@
 import json
 import os
 import re
+import time
 
-from django.conf import settings
+import requests
 
-DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+from judge.models import LANGUAGE_IDS, Submission
+
+
+def get_output(language, code, input_txt, time_limit, memory_limit):
+    body = {
+        'language_id': LANGUAGE_IDS[language],
+        'source_code': code,
+        'stdin': input_txt,
+        'cpu_time_limit': time_limit,
+        'memory_limit': memory_limit * 1000,
+    }
+    JUDGE0_URL = os.environ.get('JUDGE0_URL')
+    JUDGE0_KEY = os.environ.get('JUDGE0_KEY')
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Auth-User': JUDGE0_KEY
+    }
+    res = requests.post(JUDGE0_URL + '/submissions', json=body, headers=headers)
+    submission_token = res.json()['token']
+    time.sleep(1)
+    submission_url = f"{JUDGE0_URL}/submissions/{submission_token}?fields=stdout,stderr,status_id,time,memory"
+    res = requests.get(submission_url, headers=headers)
+    while res.json()['status_id'] <= 2:
+        res = requests.get(submission_url, headers=headers)
+        time.sleep(1)
+    status_id = res.json()['status_id']
+    memory = res.json()['memory']
+    cpu_time = res.json()['time']
+    if status_id >= 6:
+        output = res.json()['stderr']
+    else:
+        output = res.json()['stdout']
+    return output, status_id, memory, cpu_time
+
+
+def check_float(s):
+    s = s.strip()
+    if re.match(r'^-?\d+(?:\.\d+)$', s) is None:
+        return False
+    return True
 
 
 def is_equal(words):
@@ -20,27 +60,7 @@ def is_equal(words):
     return word1.strip() == word2.strip()
 
 
-def check_float(s):
-    s = s.strip()
-    if re.match(r'^-?\d+(?:\.\d+)$', s) is None:
-        return False
-    return True
-
-
-def create_files(path, files_with_text):
-    for name, text in files_with_text:
-        with open(f'{path}{name}', 'w+') as new_file:
-            new_file.write(str(text))
-        os.chmod(f'{path}{name}', 0o755)
-
-
-def delete_files(path, file_names):
-    for name in file_names:
-        if os.path.exists(f'{path}{name}'):
-            os.remove(f'{path}{name}')
-
-
-def check_output(output_text, correct_text):
+def compare_output(output_text, correct_text):
     out_line_arr, corr_line_arr = str(output_text).strip().split(
         '\n'), str(correct_text).strip().split('\n')
     if len(out_line_arr) != len(corr_line_arr):
@@ -60,7 +80,7 @@ def check_output(output_text, correct_text):
 
 
 def check_correctness(correct_output, overall_status, present_output, test_case, input_text):
-    status = check_output(present_output, correct_output)
+    status = compare_output(present_output, correct_output)
     if status[0] == 'WA':
         overall_status[0] = 'WA'
         overall_status[1].append(
@@ -75,125 +95,37 @@ def check_correctness(correct_output, overall_status, present_output, test_case,
     return overall_status
 
 
-def get_output(path, input_txt, language, time_limit=1):
-    create_files(path, zip(['_in.txt', '_out.txt'], [input_txt, '']))
-    cid = path.split('/')[-1]
-    bf_cid = '/'.join(path.split('/')[:-1]) + '/'
-    if language == 'c_cpp':
-        cr = os.system(
-            f'timeout {time_limit} {bf_cid}./{cid} < {path}_in.txt > {path}_out.txt')
-    else:
-        cr = os.system(
-            f'timeout {time_limit + 1} python3 {path}.py < {path}_in.txt > {path}_out.txt')
-    if cr != 0:
-        delete_files(path, ['_in.txt', '_out.txt'])
-        return 'TLE', None
-    with open(f'{path}_out.txt') as file_out:
-        output = file_out.read().strip()
-    delete_files(path, ['_in.txt', '_out.txt'])
-    return 'OK', output
+def judge_solution(submission: Submission):
+    submission.verdict = 'Running'
+    submission.save()
+    language = submission.language
+    time_limit = submission.problem.time_limit
+    memory_limit = submission.problem.memory_limit
+    test_cases = submission.problem.testcase_set.all()
+    input_list, output_list = [], []
+    for tc in test_cases:
+        input_list.append(tc.inputs)
+        output_list.append(tc.output)
 
-
-def check_test_case(path, input_list, output_list, language, time_limit, websocket, check_id):
     overall_status = ['OK', [], 'Everything looks fine']
     test_case = 0
     for input_txt, correct_output in zip(input_list, output_list):
         test_case += 1
-        try:
-            if websocket:
-                websocket.send(json.dumps({'status': f'Running test case {test_case}', 'id': check_id}))
-        except:
-            pass
-        status = get_output(path, input_txt, language, time_limit)
-        if status[0] == 'TLE':
+        submission.verdict = f"Running on test case {test_case}"
+        submission.save()
+        status = get_output(language, submission.code, input_txt, time_limit, memory_limit)
+        if status[1] == 5:
             overall_status[0] = 'TLE'
             overall_status[1].append([input_txt[:200], '', ''])
             overall_status[2] = f'Time limit exceed on test case {test_case}'
             break
         else:
-            present_output = status[1]
+            present_output = status[0]
             overall_status = check_correctness(
                 correct_output, overall_status, present_output, test_case, input_txt)
             if overall_status[0] == 'WA':
                 break
-    return overall_status
 
-
-def compile_code_cpp(path, code):
-    create_files(path, zip(['.cpp', '_err.txt'], [code, '']))
-    if os.system(f'g++ -std=c++20 {path}.cpp -o {path} 2> {path}_err.txt') != 0:
-        with open(f'{path}_err.txt', 'r') as file_err:
-            errors = file_err.read()
-        delete_files(path, ['.cpp', '_err.txt'])
-        return 'CE', '\n'.join(errors.split('\n')[1:4])
-    delete_files(path, ['.cpp', '_err.txt'])
-    return 'OK', None
-
-
-def compile_code_python(path, code, sample):
-    create_files(path, zip(['.py', '_in.txt', '_err.txt'], [code, sample, '']))
-    stat = os.system(
-        f'timeout {2} python3 {path}.py < {path}_in.txt 2> {path}_err.txt')
-    if stat != 0:
-        with open(f'{path}_err.txt', 'r') as file_err:
-            errors = file_err.read()
-        delete_files(path, ['_err.txt', '_in.txt'])
-        return 'CE', f"Error Code: {stat}\n" + '\n'.join(errors.split('\n')[1:4])
-    delete_files(path, ['_err.txt', '_in.txt'])
-    return 'OK', None
-
-
-def compile_code(path, code, language, sample):
-    if language == 'c_cpp':
-        status = compile_code_cpp(path, code)
-    elif language == 'python':
-        status = compile_code_python(path, code, sample)
-    else:
-        status = [
-            'CE', f'Wrong language choice.\nOnly c_cpp and python supported\nYour choice {language}']
-    return status
-
-
-def get_information(data: dict):
-    try:
-        code = data['code']
-        language = data['language']
-        time_limit = data['time_limit']
-        input_list = data['input_list']
-        output_list = data['output_list']
-        return code, input_list, language, output_list, time_limit, True
-    except KeyError:
-        pass
-    return 'code', 'input_list', 'language', 'output_list', 'time_limit', False
-
-
-def judge_solution(check_id, data, websocket=None):
-    path = os.path.join(settings.BASE_DIR, 'static', str(check_id))
-    code, input_list, language, output_list, time_limit, correct = get_information(data)
-    if not correct:
-        return json.dumps(data), 400
-    status = compile_code(path, code, language, input_list[0])
-    if status[0] == 'CE':
-        overall_status = [*status, 'Compilation Error']
-    else:
-        overall_status = check_test_case(path, input_list, output_list, language, time_limit, websocket, check_id)
-    if language == 'c_cpp':
-        delete_files(path, [''])
-    elif language == 'python':
-        delete_files(path, ['.py'])
-    return overall_status, 200
-
-
-def just_output(check_id, data):
-    path = os.path.join(settings.BASE_DIR, 'static', str(check_id))
-    code, input_text, time_limit, language = data['code'], data[
-        'input_text'], data['time_limit'], data['language']
-    status, message = compile_code(path, code, language, input_text)
-    if status == 'OK':
-        _, output = get_output(path, input_text, language, time_limit)
-    else:
-        return {'output': f'{status}: {message}'}
-    if not output:
-        output = "Your input or code is wrong. You got TLE or RE"
-    delete_files(path, [''])
-    return output, 200
+    submission.verdict = overall_status[0]
+    submission.details = json.dumps(overall_status)
+    submission.save()

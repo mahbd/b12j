@@ -1,4 +1,3 @@
-import json
 import threading
 
 from django.contrib.auth import get_user_model
@@ -8,45 +7,16 @@ from django.dispatch import receiver
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from .judge import judge_solution, just_output
+from .judge import judge_solution, get_output
 from .models import Contest, Submission, TestCase
 
 User = get_user_model()
 
 
-def _judge_submission(data, check_id):
-    data, status_code = judge_solution(check_id, data)
-    if status_code == 200:
-        submission = Submission.objects.get(id=check_id)
-        data[0], data[2] = data[2], data[0]
-        submission.verdict = data[2]
-        submission.details = json.dumps(data)
-        submission.save()
-    else:
-        # ToDo: implement remote logging system
-        print('Error happened')
-
-
 @receiver(post_save, sender=Submission)
 def judge_submission(instance: Submission, created, **kwargs):
     if created:
-        code = instance.code
-        language = instance.language
-        time_limit = instance.problem.time_limit
-        test_cases = instance.problem.testcase_set.all()
-        input_list, output_list = [], []
-        for tc in test_cases:
-            input_list.append(tc.inputs)
-            output_list.append(tc.output)
-
-        data = {
-            'code': code,
-            'language': language,
-            'time_limit': time_limit,
-            'input_list': input_list,
-            'output_list': output_list
-        }
-        thread = threading.Thread(target=_judge_submission, args=[data, instance.id])
+        thread = threading.Thread(target=judge_solution, args=[instance])
         thread.start()
 
 
@@ -62,17 +32,13 @@ def rejudge(request, sub_id):
 @receiver(post_save, sender=TestCase)
 def generate_output(instance: TestCase, created, **kwargs):
     if created:
+        language = instance.problem.correct_lang
         code = instance.problem.correct_code
+        input_txt = instance.inputs
         time_limit = instance.problem.time_limit
-        test_text = instance.inputs
-        data = {
-            'code': code,
-            'language': instance.problem.correct_lang,
-            'time_limit': time_limit,
-            'input_text': test_text
-        }
-        output, status_code = just_output(instance.id, data)
-        if status_code == 200:
+        memory_limit = instance.problem.memory_limit
+        output, status_code, _, _ = get_output(language, code, input_txt, time_limit, memory_limit)
+        if status_code == 3:
             instance.output = output
             instance.save()
         else:

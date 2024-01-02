@@ -6,13 +6,22 @@ from django.utils import timezone
 
 from users.models import User
 
-
 LANGUAGE_PYTHON = 'python'
 LANGUAGE_CPP = 'c_cpp'
+LANGUAGE_TYPESCRIPT = 'typescript'
+LANGUAGE_KOTLIN = 'kotlin'
 LANGUAGE_CHOICES = (
     (LANGUAGE_CPP, 'C/C++'),
-    (LANGUAGE_PYTHON, 'Python')
+    (LANGUAGE_PYTHON, 'Python'),
+    (LANGUAGE_TYPESCRIPT, 'TypeScript'),
+    (LANGUAGE_KOTLIN, 'Kotlin'),
 )
+LANGUAGE_IDS = {
+    LANGUAGE_CPP: 54,
+    LANGUAGE_PYTHON: 71,
+    LANGUAGE_TYPESCRIPT: 74,
+    LANGUAGE_KOTLIN: 78,
+}
 
 
 def validate_past(start_time: datetime):
@@ -27,7 +36,7 @@ class ContestProblem(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ('problem_char', )
+        ordering = ('problem_char',)
 
 
 # TODO: Start and end time validator
@@ -99,7 +108,7 @@ class Comment(models.Model):
         return self.text[:20]
 
     class Meta:
-        ordering = ('-created_at', )
+        ordering = ('-created_at',)
 
 
 class TestCase(models.Model):
@@ -113,7 +122,7 @@ class TestCase(models.Model):
         return f'input: {self.inputs[:10]}, created_at: {self.created_at}'
 
     class Meta:
-        ordering = ('created_at', )
+        ordering = ('created_at',)
 
 
 class Submission(models.Model):
@@ -130,7 +139,7 @@ class Submission(models.Model):
         return f'by: {self.user.username}\tverdict: {self.verdict}\tproblem:{self.problem.title}'
 
     class Meta:
-        ordering = ('-created_at', )
+        ordering = ('-created_at',)
 
 
 class Tutorial(models.Model):
@@ -146,4 +155,4 @@ class Tutorial(models.Model):
         return self.title
 
     class Meta:
-        ordering = ('-created_at', )
+        ordering = ('-created_at',)

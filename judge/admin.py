@@ -76,10 +76,10 @@ class TestCaseAdmin(admin.ModelAdmin):
         self.message_user(request, f'{queryset.count()} regenerated successfully.')
 
     def input2(self, test_case: TestCase):
-        return test_case.inputs[:75]
+        return test_case.inputs and test_case.inputs[:75]
 
     def output2(self, test_case: TestCase):
-        return test_case.output[:75]
+        return test_case.output and test_case.output[:75]
 
 
 @admin.register(Tutorial)
