@@ -133,6 +133,8 @@ class Submission(models.Model):
     language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES)
     verdict = models.CharField(max_length=5, default='PJ')
     details = models.TextField(blank=True, null=True)
+    cpu_time = models.FloatField(default=0)
+    memory = models.FloatField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

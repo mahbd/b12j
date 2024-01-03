@@ -109,23 +109,28 @@ def judge_solution(submission: Submission):
 
     overall_status = ['OK', [], 'Everything looks fine']
     test_case = 0
+    max_memory, max_cpu_time = 0, 0
     for input_txt, correct_output in zip(input_list, output_list):
         test_case += 1
         submission.verdict = f"Running on test case {test_case}"
         submission.save()
-        status = get_output(language, submission.code, input_txt, time_limit, memory_limit)
-        if status[1] == 5:
+        present_output, status_id, memory, cpu_time = get_output(language, submission.code, input_txt, time_limit,
+                                                                 memory_limit)
+        max_memory = max(int(max_memory), memory // 1000)
+        max_cpu_time = max(max_cpu_time, float(cpu_time))
+        if status_id == 5:
             overall_status[0] = 'TLE'
             overall_status[1].append([input_txt[:200], '', ''])
             overall_status[2] = f'Time limit exceed on test case {test_case}'
             break
         else:
-            present_output = status[0]
             overall_status = check_correctness(
                 correct_output, overall_status, present_output, test_case, input_txt)
             if overall_status[0] == 'WA':
                 break
 
+    submission.cpu_time = max_cpu_time
+    submission.memory = max_memory
     submission.verdict = overall_status[0]
     submission.details = json.dumps(overall_status)
     submission.save()

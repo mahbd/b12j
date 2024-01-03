@@ -32,11 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 3rd party
     'debug_toolbar',
-    'social_django',
     'rest_framework_simplejwt',
     'corsheaders',
     'rest_framework',
-    'djoser',
     'channels',
     'django_filters',
     # Own apps
@@ -195,55 +193,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-DJOSER = {
-    'LOGIN_FIELD': 'username',
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'SEND_CONFIRMATION_EMAIL': True,
-    'SET_PASSWORD_RETYPE': True,
-    'USERNAME_RESET_CONFIRM_URL': 'users/usernameResetConfirm/{uid}/{token}',
-    'PASSWORD_RESET_CONFIRM_URL': 'users/passwordResetConfirm/{uid}/{token}',
-    'ACTIVATION_URL': 'users/activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
-    'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
-    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
-        'https://b12j.mahmudul23.com.bd/users/confirmOAuth/google',
-        'https://b12j.mahmudul23.com.bd/users/confirmOAuth/facebook',
-        'https://b12j.mahmudul23.com.bd/users/confirmOAuth/github',
-        'https://b12j.mahmudul23.me/users/confirmOAuth/google',
-        'https://b12j.mahmudul23.me/users/confirmOAuth/facebook',
-        'https://b12j.mahmudul23.me/users/confirmOAuth/github',
-        'http://localhost:3000/users/confirmOAuth/google',
-        'http://localhost:3000/users/confirmOAuth/facebook',
-        'http://localhost:3000/users/confirmOAuth/github',
-    ],
-    'SERIALIZERS': {
-        'user_create': 'users.serializers.UserCreateSerializer',
-        'user_create_password_retype': 'users.serializers.UserCreatePasswordRetypeSerializer',
-        'user': 'users.serializers.UserCreateSerializer',
-        # 'current_user': 'users.serializers.UserCreateSerializer',
-        # 'user_delete': 'djoser.serializers.UserDeleteSerializer',
-    },
-    'PERMISSIONS': {
-        'user_list': ['api.permissions.UserModelPermission']
-    }
-}
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_SECRET')
-SOCIAL_AUTH_GITHUB_KEY = os.environ.get('GITHUB_KEY')
-SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('GITHUB_SECRET')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email',
-                                   'https://www.googleapis.com/auth/userinfo.profile', 'openid']
-SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
-
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get('FACEBOOK_KEY')
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get('FACEBOOK_SECRET')
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'email, first_name, last_name'
-}
-SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 #####################################################################
 CORS_ALLOW_ALL_ORIGINS = True  #
 CORS_ALLOW_CREDENTIALS = True

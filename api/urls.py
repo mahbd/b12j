@@ -18,9 +18,6 @@ urlpatterns = [
     path('auth/jwt/create/', views.MyTokenObtainPairView.as_view(),
          name='token_obtain_pair'),
     path('auth/google/token/', views.google_login, name='google_login'),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
-    path('auth/', include('djoser.social.urls')),
     path('', include(router.urls)),
     path('standing/<contest_id>', judge_view.standing),
 ]

@@ -47,11 +47,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     actions = ['rejudge_submissions']
     list_filter = ['verdict', 'contest', 'problem', 'user']
     search_fields = ['problem__title', 'contest__title', 'user__username', 'user__first_name', 'user__last_name']
-    list_display = ['id', 'user', "contest", 'problem', 'language', 'verdict', 'details2', 'created_at']
+    list_display = ['id', 'user', "contest", 'problem', 'language', 'verdict', 'memory', 'cpu_time', 'created_at']
     list_per_page = 20
-
-    def details2(self, submission: Submission):
-        return str(submission.details)[:50]
 
     @admin.action(description="Rejudge submissions")
     def rejudge_submissions(self, request, queryset):
