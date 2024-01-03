@@ -1,22 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { SuperContext } from "../../context";
 import { Link } from "react-router-dom";
 import { Table, Verdict } from "../../components/customTags";
-import { apiEndpoint, serverUrls, urls } from "../../configuration";
-import httpService from "../../components/httpService";
+import { urls } from "../../configuration";
 
 const Submission = ({ match }) => {
   const { submissionId } = match.params;
-  const { userActs, problemActs } = useContext(SuperContext);
-  const [submission, setSubmission] = useState(undefined);
-
-  useEffect(() => {
-    httpService.get(`${apiEndpoint}${serverUrls.submissions}/${submissionId}/`).then(res => {
-      setSubmission(res.data);
-    }).catch(err => {
-      console.log(err);
-    });
-  }, [submissionId]);
+  const { userActs, problemActs, submissionActs } = useContext(SuperContext);
+  const submission = submissionActs.getById(submissionId);
 
   return (
     <div>{submission &&
