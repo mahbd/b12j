@@ -158,6 +158,8 @@ class ProblemViewSet(viewsets.ModelViewSet):
         if self.request.GET.get('test_problems'):
             q = Q(contest__writers=self.request.user) | Q(contest__testers=self.request.user)
             return Problem.objects.filter(q, contest__start_time__gt=timezone.now())
+        if self.request.method in ['POST', 'PUT']:
+            return Problem.objects.all()
         queryset = [problem for problem in
                     Problem.objects.all()
                     if problem.is_hidden() is False or problem.user == self.request.user]
