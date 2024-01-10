@@ -158,9 +158,10 @@ class ProblemViewSet(viewsets.ModelViewSet):
         if self.request.GET.get('test_problems'):
             q = Q(contest__writers=self.request.user) | Q(contest__testers=self.request.user)
             return Problem.objects.filter(q, contest__start_time__gt=timezone.now())
-        return [problem for problem in
-                Problem.objects.filter(hidden_till__lt=timezone.now())
-                if problem.is_hidden() is False]
+        queryset = [problem for problem in
+                    Problem.objects.all()
+                    if problem.is_hidden() is False or problem.user == self.request.user]
+        return queryset
 
     def get_serializer_class(self):
         request = self.request
@@ -168,7 +169,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
             if Problem.objects.filter(pk=self.kwargs.get('pk')).exists():
                 if self.request.user == Problem.objects.filter(pk=self.kwargs.get('pk')).first().user:
                     return ProblemOwnerSerializer
-        if request.method == 'POST':
+        if request.method == 'POST' or request.method == 'PUT':
             return ProblemOwnerSerializer
         return ProblemSerializer
 
